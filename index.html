@@ -268,8 +268,105 @@
         .mobile-device .btn { min-height: 44px; min-width: 44px; }
         .mobile-device .btn-icon { min-width: 40px; min-height: 40px; }
         .mobile-device .table th, .mobile-device .table td { padding: 0.75rem 0.5rem; }
+        
+        /* Quotations mobile improvements */
+        .quotation-card {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .quotation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .quotation-number {
+            font-weight: bold;
+            color: #FF6B35;
+            font-size: 16px;
+        }
+        
+        .quotation-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .quotation-status.pending { background: #fff3cd; color: #856404; }
+        .quotation-status.approved { background: #d4edda; color: #155724; }
+        .quotation-status.rejected { background: #f8d7da; color: #721c24; }
+        .quotation-status.sent { background: #d1ecf1; color: #0c5460; }
+        
+        .quotation-info {
+            margin-bottom: 10px;
+        }
+        
+        .quotation-info p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+        
+        .quotation-info strong {
+            color: #333;
+        }
+        
+        .quotation-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .quotation-actions .btn {
+            font-size: 12px;
+            padding: 8px 12px;
+            flex: 1;
+            min-width: 80px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-view { background: #17a2b8; color: white; }
+        .btn-view:hover { background: #138496; }
+        .btn-edit { background: #ffc107; color: #212529; }
+        .btn-edit:hover { background: #e0a800; }
+        .btn-share { background: #28a745; color: white; }
+        .btn-share:hover { background: #218838; }
+        .btn-pdf { background: #dc3545; color: white; }
+        .btn-pdf:hover { background: #c82333; }
+        
+        /* Hide/show views based on screen size */
+        .mobile-quotations {
+            display: none;
+        }
+        
+        .desktop-quotations {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-quotations {
+                display: block;
+            }
+            
+            .desktop-quotations {
+                display: none;
+            }
+        }
     </style>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <!-- Login Screen -->
@@ -553,25 +650,34 @@
                     <button class="btn" onclick="showModal('quotationModal')">
                         <i class="fas fa-plus"></i> Nueva Cotización
                     </button>
-                    <button class="btn btn-secondary" onclick="exportQuotations()">
-                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    <button class="btn btn-secondary" onclick="exportAllQuotationsPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar Todo
                     </button>
                 </div>
-                <table class="table" id="quotationsTable">
-                    <thead>
-                        <tr>
-                            <th>Número</th>
-                            <th>Cliente</th>
-                            <th>Fecha</th>
-                            <th>Total</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="quotationsTableBody">
-                        <!-- Las cotizaciones se cargan dinámicamente -->
-                    </tbody>
-                </table>
+                
+                <!-- Desktop Table View -->
+                <div class="desktop-quotations">
+                    <table class="table" id="quotationsTable">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quotationsTableBody">
+                            <!-- Las cotizaciones se cargan dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Mobile Card View -->
+                <div class="mobile-quotations" id="quotationsCards">
+                    <!-- Las cotizaciones se cargan dinámicamente -->
+                </div>
                 
                 <div id="emptyQuotations" class="empty-products" style="display: none;">
                     <p><i class="fas fa-info-circle"></i> No hay cotizaciones creadas. Crea tu primera cotización usando el botón "Nueva Cotización".</p>
@@ -2667,16 +2773,19 @@ ${categoryReport}
         // Actualizar display de cotizaciones
         function updateQuotationsDisplay() {
             const tbody = document.getElementById('quotationsTableBody');
+            const cardsContainer = document.getElementById('quotationsCards');
             const emptyMessage = document.getElementById('emptyQuotations');
             
             if (quotations.length === 0) {
                 tbody.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 emptyMessage.style.display = 'block';
                 return;
             }
             
             emptyMessage.style.display = 'none';
             
+            // Desktop table view
             tbody.innerHTML = quotations.map(quotation => {
                 const statusInfo = getQuotationStatusInfo(quotation.status);
                 const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
@@ -2692,20 +2801,56 @@ ${categoryReport}
                         <td><strong>$${quotation.total.toFixed(2)}</strong></td>
                         <td><span class="badge ${statusInfo.class}">${statusInfo.text}</span></td>
                         <td>
-                            <button class="btn btn-success" onclick="approveQuotation(${quotation.id})" title="Aprobar">
-                                <i class="fas fa-check"></i>
+                            <button class="btn btn-info" onclick="viewQuotationDetails(${quotation.id})" title="Ver">
+                                <i class="fas fa-eye"></i>
                             </button>
                             <button class="btn btn-warning" onclick="editQuotation(${quotation.id})" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn" onclick="shareQuotation(${quotation.id})" title="Compartir">
+                            <button class="btn btn-success" onclick="shareQuotation(${quotation.id})" title="Compartir">
                                 <i class="fas fa-share"></i>
                             </button>
-                            <button class="btn btn-danger" onclick="deleteQuotation(${quotation.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
+                            <button class="btn btn-danger" onclick="downloadQuotationPDF(${quotation.id})" title="PDF">
+                                <i class="fas fa-file-pdf"></i>
                             </button>
                         </td>
                     </tr>
+                `;
+            }).join('');
+            
+            // Mobile cards view
+            cardsContainer.innerHTML = quotations.map(quotation => {
+                const statusInfo = getQuotationStatusInfo(quotation.status);
+                const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+                
+                return `
+                    <div class="quotation-card">
+                        <div class="quotation-header">
+                            <span class="quotation-number">${quotation.number}</span>
+                            <span class="quotation-status ${quotation.status}">${statusInfo.text}</span>
+                        </div>
+                        <div class="quotation-info">
+                            <p><strong>Cliente:</strong> ${quotation.clientName}</p>
+                            ${quotation.clientCompany ? `<p><strong>Empresa:</strong> ${quotation.clientCompany}</p>` : ''}
+                            <p><strong>Fecha:</strong> ${formattedDate}</p>
+                            <p><strong>Total:</strong> <span style="color: #FF6B35; font-weight: bold;">$${quotation.total.toFixed(2)}</span></p>
+                            <p><strong>Productos:</strong> ${quotation.products.length} items</p>
+                        </div>
+                        <div class="quotation-actions">
+                            <button class="btn btn-view" onclick="viewQuotationDetails(${quotation.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn btn-edit" onclick="editQuotation(${quotation.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-share" onclick="shareQuotation(${quotation.id})">
+                                <i class="fas fa-share"></i> Compartir
+                            </button>
+                            <button class="btn btn-pdf" onclick="downloadQuotationPDF(${quotation.id})">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -2743,6 +2888,486 @@ ${categoryReport}
             
             // Aquí se abriría una ventana con la vista previa de la cotización
             showAlert('👁️ Abriendo vista previa de cotización...', 'info');
+        }
+
+        // Ver detalles completos de cotización
+        function viewQuotationDetails(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) {
+                showAlert('❌ Cotización no encontrada', 'error');
+                return;
+            }
+            
+            const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+            const validUntil = new Date(quotation.validUntil).toLocaleDateString('es-DO');
+            
+            const productsHtml = quotation.products.map(product => `
+                <tr>
+                    <td>${product.name}</td>
+                    <td>${product.quantity}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>$${product.subtotal.toFixed(2)}</td>
+                </tr>
+            `).join('');
+            
+            const detailsHtml = `
+                <div style="max-width: 90vw; max-height: 90vh; overflow-y: auto;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
+                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #FF6B35; padding-bottom: 15px;">
+                            <h2 style="color: #FF6B35; margin: 0;">PowerTools RD</h2>
+                            <h3 style="margin: 5px 0;">COTIZACIÓN ${quotation.number}</h3>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <h4 style="color: #2E4057; margin-bottom: 10px;">Información del Cliente</h4>
+                                <p><strong>Nombre:</strong> ${quotation.clientName}</p>
+                                ${quotation.clientCompany ? `<p><strong>Empresa:</strong> ${quotation.clientCompany}</p>` : ''}
+                                <p><strong>Email:</strong> ${quotation.clientEmail}</p>
+                                <p><strong>Teléfono:</strong> ${quotation.clientPhone}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: #2E4057; margin-bottom: 10px;">Información de la Cotización</h4>
+                                <p><strong>Fecha:</strong> ${formattedDate}</p>
+                                <p><strong>Válida hasta:</strong> ${validUntil}</p>
+                                <p><strong>Estado:</strong> <span style="color: #FF6B35;">${getQuotationStatusInfo(quotation.status).text}</span></p>
+                                <p><strong>Condiciones de pago:</strong> ${quotation.paymentTerms}</p>
+                            </div>
+                        </div>
+                        
+                        <h4 style="color: #2E4057; margin-bottom: 10px;">Productos/Servicios</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto</th>
+                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Cantidad</th>
+                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Precio Unit.</th>
+                                    <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${productsHtml}
+                            </tbody>
+                        </table>
+                        
+                        <div style="text-align: right; margin-bottom: 20px;">
+                            <p style="font-size: 14px; margin: 5px 0;">Subtotal: $${quotation.subtotal.toFixed(2)}</p>
+                            <p style="font-size: 14px; margin: 5px 0;">ITBIS (18%): $${quotation.tax.toFixed(2)}</p>
+                            <p style="font-size: 18px; font-weight: bold; color: #FF6B35; margin: 10px 0; border-top: 2px solid #ddd; padding-top: 10px;">
+                                Total: $${quotation.total.toFixed(2)}
+                            </p>
+                        </div>
+                        
+                        ${quotation.notes ? `
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="color: #2E4057; margin-bottom: 10px;">Notas adicionales</h4>
+                                <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #FF6B35;">
+                                    ${quotation.notes}
+                                </p>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 30px; text-align: center; border-top: 1px solid #ddd; padding-top: 15px; font-size: 12px; color: #666;">
+                            <p>PowerTools RD - Sistema de Gestión Empresarial</p>
+                            <p>Esta cotización es válida hasta ${validUntil}</p>
+                        </div>
+                        
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button onclick="shareQuotation(${quotation.id})" style="background: #28a745; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-share"></i> Compartir
+                            </button>
+                            <button onclick="downloadQuotationPDF(${quotation.id})" style="background: #dc3545; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-file-pdf"></i> Descargar PDF
+                            </button>
+                            <button onclick="editQuotation(${quotation.id})" style="background: #ffc107; color: #212529; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showCustomModal('Detalles de Cotización', detailsHtml);
+        }
+
+        // Función auxiliar para mostrar modal personalizado
+        function showCustomModal(title, content) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                padding: 20px;
+                box-sizing: border-box;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; max-width: 95vw; max-height: 95vh; overflow-y: auto; position: relative;">
+                    <div style="position: sticky; top: 0; background: #FF6B35; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;">
+                        <h3 style="margin: 0;">${title}</h3>
+                        <button onclick="this.closest('.modal').remove()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                            ×
+                        </button>
+                    </div>
+                    <div style="padding: 20px;">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+            
+            document.body.appendChild(modal);
+        }
+
+        // Compartir cotización por WhatsApp o Email
+        function shareQuotation(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) {
+                showAlert('❌ Cotización no encontrada', 'error');
+                return;
+            }
+            
+            const message = `🔧 *PowerTools RD - Cotización ${quotation.number}*\n\n` +
+                `📋 Cliente: ${quotation.clientName}\n` +
+                `📅 Fecha: ${new Date(quotation.date).toLocaleDateString('es-DO')}\n` +
+                `💰 Total: $${quotation.total.toFixed(2)}\n` +
+                `📦 Productos: ${quotation.products.length} items\n\n` +
+                `${quotation.products.map(p => `• ${p.name} (${p.quantity}x) - $${p.subtotal.toFixed(2)}`).join('\n')}\n\n` +
+                `⏰ Válida hasta: ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}\n` +
+                `${quotation.notes ? `📝 Notas: ${quotation.notes}\n` : ''}` +
+                `\n¡Gracias por confiar en PowerTools RD! 🛠️`;
+            
+            const shareOptions = `
+                <div style="text-align: center;">
+                    <p style="margin-bottom: 20px;">¿Cómo deseas compartir la cotización?</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto;">
+                        <button onclick="shareViaWhatsApp('${encodeURIComponent(message)}', '${quotation.clientPhone}')" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                        </button>
+                        <button onclick="shareViaEmail('${quotation.clientEmail}', '${encodeURIComponent(`Cotización ${quotation.number} - PowerTools RD`)}', '${encodeURIComponent(message)}')" style="background: #0078D4; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            <i class="fas fa-envelope"></i> Enviar por Email
+                        </button>
+                        <button onclick="shareGeneric('${encodeURIComponent(message)}')" style="background: #6c757d; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            <i class="fas fa-share-alt"></i> Otras opciones
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            showCustomModal('Compartir Cotización', shareOptions);
+        }
+
+        // Compartir via WhatsApp
+        function shareViaWhatsApp(message, phone = '') {
+            const encodedMessage = message;
+            const phoneNumber = phone.replace(/\D/g, ''); // Remover caracteres no numéricos
+            const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            window.open(url, '_blank');
+            document.querySelector('.modal').remove();
+        }
+
+        // Compartir via Email
+        function shareViaEmail(email, subject, body) {
+            const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
+            window.open(mailtoUrl);
+            document.querySelector('.modal').remove();
+        }
+
+        // Compartir genérico (API nativa del navegador)
+        function shareGeneric(message) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Cotización PowerTools RD',
+                    text: decodeURIComponent(message)
+                }).then(() => {
+                    document.querySelector('.modal').remove();
+                });
+            } else {
+                // Fallback: copiar al portapapeles
+                navigator.clipboard.writeText(decodeURIComponent(message)).then(() => {
+                    showAlert('📋 Cotización copiada al portapapeles', 'success');
+                    document.querySelector('.modal').remove();
+                });
+            }
+        }
+
+        // Descargar cotización como PDF
+        function downloadQuotationPDF(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) {
+                showAlert('❌ Cotización no encontrada', 'error');
+                return;
+            }
+            
+            showAlert('📄 Preparando PDF...', 'info');
+            
+            // Crear contenido HTML para el PDF
+            const pdfContent = generateQuotationPDFContent(quotation);
+            
+            // Crear ventana para imprimir
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(pdfContent);
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                printWindow.print();
+                setTimeout(() => {
+                    printWindow.close();
+                }, 1000);
+            };
+        }
+
+        // Generar contenido HTML para PDF
+        function generateQuotationPDFContent(quotation) {
+            const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+            const validUntil = new Date(quotation.validUntil).toLocaleDateString('es-DO');
+            
+            const productsHtml = quotation.products.map(product => `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${product.name}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${product.quantity}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${product.price.toFixed(2)}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${product.subtotal.toFixed(2)}</td>
+                </tr>
+            `).join('');
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Cotización ${quotation.number} - PowerTools RD</title>
+                    <style>
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; border-bottom: 3px solid #FF6B35; padding-bottom: 20px; margin-bottom: 30px; }
+                        .company-name { color: #FF6B35; font-size: 28px; margin: 0; }
+                        .quotation-title { color: #2E4057; font-size: 20px; margin: 10px 0; }
+                        .info-section { display: table; width: 100%; margin-bottom: 30px; }
+                        .info-left, .info-right { display: table-cell; width: 50%; vertical-align: top; }
+                        .info-left { padding-right: 20px; }
+                        .info-title { color: #2E4057; font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+                        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        .products-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; }
+                        .products-table td { border: 1px solid #ddd; padding: 8px; }
+                        .totals { text-align: right; margin-bottom: 30px; }
+                        .total-line { margin: 5px 0; }
+                        .grand-total { font-size: 18px; font-weight: bold; color: #FF6B35; border-top: 2px solid #ddd; padding-top: 10px; }
+                        .notes { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #FF6B35; margin-bottom: 30px; }
+                        .footer { text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1 class="company-name">PowerTools RD</h1>
+                        <h2 class="quotation-title">COTIZACIÓN ${quotation.number}</h2>
+                        <p>Sistema de Gestión Empresarial</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-left">
+                            <h3 class="info-title">Información del Cliente</h3>
+                            <p><strong>Nombre:</strong> ${quotation.clientName}</p>
+                            ${quotation.clientCompany ? `<p><strong>Empresa:</strong> ${quotation.clientCompany}</p>` : ''}
+                            <p><strong>Email:</strong> ${quotation.clientEmail}</p>
+                            <p><strong>Teléfono:</strong> ${quotation.clientPhone}</p>
+                        </div>
+                        <div class="info-right">
+                            <h3 class="info-title">Información de la Cotización</h3>
+                            <p><strong>Fecha:</strong> ${formattedDate}</p>
+                            <p><strong>Válida hasta:</strong> ${validUntil}</p>
+                            <p><strong>Estado:</strong> ${getQuotationStatusInfo(quotation.status).text}</p>
+                            <p><strong>Condiciones de pago:</strong> ${quotation.paymentTerms}</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="info-title">Productos/Servicios</h3>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Producto/Servicio</th>
+                                <th style="text-align: center;">Cantidad</th>
+                                <th style="text-align: right;">Precio Unitario</th>
+                                <th style="text-align: right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productsHtml}
+                        </tbody>
+                    </table>
+                    
+                    <div class="totals">
+                        <div class="total-line">Subtotal: $${quotation.subtotal.toFixed(2)}</div>
+                        <div class="total-line">ITBIS (18%): $${quotation.tax.toFixed(2)}</div>
+                        <div class="grand-total">Total: $${quotation.total.toFixed(2)}</div>
+                    </div>
+                    
+                    ${quotation.notes ? `
+                        <div class="notes">
+                            <h3 class="info-title">Notas adicionales</h3>
+                            <p>${quotation.notes}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="footer">
+                        <p>PowerTools RD - Sistema de Gestión Empresarial</p>
+                        <p>Esta cotización es válida hasta ${validUntil}</p>
+                        <p>¡Gracias por confiar en nosotros!</p>
+                    </div>
+                    
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 500);
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
+        }
+
+        // Exportar todas las cotizaciones a PDF
+        function exportAllQuotationsPDF() {
+            if (quotations.length === 0) {
+                showAlert('❌ No hay cotizaciones para exportar', 'error');
+                return;
+            }
+            
+            showAlert('📄 Preparando reporte de cotizaciones...', 'info');
+            
+            const reportContent = generateQuotationsReportContent();
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(reportContent);
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                printWindow.print();
+                setTimeout(() => {
+                    printWindow.close();
+                }, 1000);
+            };
+        }
+
+        // Generar reporte de todas las cotizaciones
+        function generateQuotationsReportContent() {
+            const currentDate = new Date().toLocaleDateString('es-DO');
+            const totalQuotations = quotations.length;
+            const totalValue = quotations.reduce((sum, q) => sum + q.total, 0);
+            
+            const quotationsHtml = quotations.map(quotation => {
+                const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+                const statusInfo = getQuotationStatusInfo(quotation.status);
+                
+                return `
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.number}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.clientName}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.clientCompany || '-'}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${formattedDate}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${quotation.total.toFixed(2)}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${statusInfo.text}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${quotation.products.length}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Reporte de Cotizaciones - PowerTools RD</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; border-bottom: 3px solid #FF6B35; padding-bottom: 20px; margin-bottom: 30px; }
+                        .company-name { color: #FF6B35; font-size: 28px; margin: 0; }
+                        .report-title { color: #2E4057; font-size: 20px; margin: 10px 0; }
+                        .summary { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+                        .summary-stats { display: table; width: 100%; }
+                        .summary-item { display: table-cell; text-align: center; padding: 10px; }
+                        .summary-value { font-size: 24px; font-weight: bold; color: #FF6B35; }
+                        .summary-label { font-size: 14px; color: #666; }
+                        .quotations-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        .quotations-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+                        .quotations-table td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
+                        .footer { text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1 class="company-name">PowerTools RD</h1>
+                        <h2 class="report-title">REPORTE DE COTIZACIONES</h2>
+                        <p>Generado el ${currentDate}</p>
+                    </div>
+                    
+                    <div class="summary">
+                        <h3 style="margin-top: 0; color: #2E4057;">Resumen Ejecutivo</h3>
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <div class="summary-value">${totalQuotations}</div>
+                                <div class="summary-label">Total Cotizaciones</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">$${totalValue.toFixed(2)}</div>
+                                <div class="summary-label">Valor Total</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">$${(totalValue / totalQuotations || 0).toFixed(2)}</div>
+                                <div class="summary-label">Promedio por Cotización</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: #2E4057; margin-bottom: 15px;">Detalle de Cotizaciones</h3>
+                    <table class="quotations-table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Empresa</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${quotationsHtml}
+                        </tbody>
+                    </table>
+                    
+                    <div class="footer">
+                        <p>PowerTools RD - Sistema de Gestión Empresarial</p>
+                        <p>Reporte generado automáticamente el ${currentDate}</p>
+                    </div>
+                    
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 500);
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
         }
 
         // Funciones adicionales
