@@ -55,7 +55,10 @@
         .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
         .alert-success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
         .chart-container { height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 1rem 0; }
-        .action-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .action-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .backup-section { background: linear-gradient(135deg, #28a745, #20c997); margin-bottom: 1rem; padding: 1rem; border-radius: 8px; }
+        .backup-section h4 { color: white; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+        .backup-section p { color: rgba(255,255,255,0.9); margin: 0 0 1rem 0; font-size: 0.9rem; }
         
         /* Login Screen Styles */
         .login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #FF6B35, #2E4057); display: flex; align-items: center; justify-content: center; z-index: 3000; }
@@ -364,12 +367,25 @@
         <div id="users" class="section">
             <div class="card">
                 <h3><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                
+                <!-- Backup Information -->
+                <div class="backup-section">
+                    <h4><i class="fas fa-shield-alt"></i> Sistema de Respaldo de Datos</h4>
+                    <p>Utiliza estas herramientas para respaldar y restaurar toda tu información de PowerTools. Recomendamos hacer respaldos antes de cualquier actualización importante.</p>
+                </div>
+                
                 <div class="action-buttons">
                     <button class="btn" onclick="showModal('userModal')">
                         <i class="fas fa-plus"></i> Nuevo Usuario
                     </button>
+                    <button class="btn btn-success" onclick="createBackupWithVerification()">
+                        <i class="fas fa-download"></i> Respaldar Datos
+                    </button>
+                    <button class="btn btn-warning" onclick="importAllData()">
+                        <i class="fas fa-upload"></i> Restaurar Datos
+                    </button>
                     <button class="btn btn-secondary" onclick="exportUsers()">
-                        <i class="fas fa-file-excel"></i> Exportar
+                        <i class="fas fa-file-excel"></i> Exportar Usuarios
                     </button>
                 </div>
                 <table class="table" id="usersTable">
@@ -1894,7 +1910,122 @@
         }
 
         function exportAllData() {
-            showAlert('Exportando toda la base de datos...', 'info');
+            try {
+                // Recopilar todos los datos del localStorage
+                const backupData = {
+                    version: "1.0",
+                    timestamp: new Date().toISOString(),
+                    data: {
+                        users: JSON.parse(localStorage.getItem('powertools_users') || '[]'),
+                        credentials: JSON.parse(localStorage.getItem('powertools_credentials') || '[]'),
+                        inventory: JSON.parse(localStorage.getItem('powertools_inventory') || '[]'),
+                        quotations: JSON.parse(localStorage.getItem('powertools_quotations') || '[]'),
+                        expenses: JSON.parse(localStorage.getItem('powertools_expenses') || '[]'),
+                        sales: JSON.parse(localStorage.getItem('powertools_sales') || '[]'),
+                        settings: JSON.parse(localStorage.getItem('powertools_settings') || '{}')
+                    }
+                };
+
+                // Crear archivo de descarga
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                // Crear enlace de descarga
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `powertools_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showAlert('✅ Respaldo creado exitosamente! Archivo descargado.', 'success');
+            } catch (error) {
+                console.error('Error al crear respaldo:', error);
+                showAlert('❌ Error al crear el respaldo. Intenta de nuevo.', 'error');
+            }
+        }
+
+        function importAllData() {
+            // Crear input file oculto
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const backupData = JSON.parse(e.target.result);
+                        
+                        // Validar estructura del respaldo
+                        if (!backupData.data || !backupData.version) {
+                            throw new Error('Formato de respaldo inválido');
+                        }
+
+                        // Confirmar restauración
+                        if (confirm('⚠️ ADVERTENCIA: Esto sobrescribirá todos los datos actuales.\n\n¿Estás seguro de que quieres restaurar el respaldo?\n\nFecha del respaldo: ' + new Date(backupData.timestamp).toLocaleString())) {
+                            // Restaurar datos
+                            const data = backupData.data;
+                            
+                            if (data.users) localStorage.setItem('powertools_users', JSON.stringify(data.users));
+                            if (data.credentials) localStorage.setItem('powertools_credentials', JSON.stringify(data.credentials));
+                            if (data.inventory) localStorage.setItem('powertools_inventory', JSON.stringify(data.inventory));
+                            if (data.quotations) localStorage.setItem('powertools_quotations', JSON.stringify(data.quotations));
+                            if (data.expenses) localStorage.setItem('powertools_expenses', JSON.stringify(data.expenses));
+                            if (data.sales) localStorage.setItem('powertools_sales', JSON.stringify(data.sales));
+                            if (data.settings) localStorage.setItem('powertools_settings', JSON.stringify(data.settings));
+                            
+                            showAlert('✅ Datos restaurados exitosamente! Recargando página...', 'success');
+                            
+                            // Recargar página después de 2 segundos
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        }
+                    } catch (error) {
+                        console.error('Error al restaurar respaldo:', error);
+                        showAlert('❌ Error al leer el archivo de respaldo. Verifica que sea un archivo válido.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Función para verificar integridad de datos antes del respaldo
+        function verifyDataIntegrity() {
+            const dataSummary = {
+                users: JSON.parse(localStorage.getItem('powertools_users') || '[]').length,
+                credentials: JSON.parse(localStorage.getItem('powertools_credentials') || '[]').length,
+                inventory: JSON.parse(localStorage.getItem('powertools_inventory') || '[]').length,
+                quotations: JSON.parse(localStorage.getItem('powertools_quotations') || '[]').length,
+                expenses: JSON.parse(localStorage.getItem('powertools_expenses') || '[]').length,
+                sales: JSON.parse(localStorage.getItem('powertools_sales') || '[]').length
+            };
+
+            const summary = `📊 RESUMEN DE DATOS A RESPALDAR:
+            
+👥 Usuarios: ${dataSummary.users}
+🔐 Credenciales: ${dataSummary.credentials}
+📦 Productos en inventario: ${dataSummary.inventory}
+📋 Cotizaciones: ${dataSummary.quotations}
+💰 Gastos registrados: ${dataSummary.expenses}
+🛒 Ventas registradas: ${dataSummary.sales}
+
+¿Deseas continuar con el respaldo?`;
+
+            return confirm(summary);
+        }
+
+        // Función mejorada de respaldo con verificación
+        function createBackupWithVerification() {
+            if (verifyDataIntegrity()) {
+                exportAllData();
+            }
         }
 
         // Acciones rápidas
