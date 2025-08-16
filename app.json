@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "PowerTools App",
+    "slug": "powertools-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B35"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.powertools.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FF6B35"
+      },
+      "package": "com.powertools.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "name": "PowerTools RD - Sistema de Gestión",
+      "shortName": "PowerTools",
+      "lang": "es",
+      "scope": "/",
+      "themeColor": "#FF6B35",
+      "backgroundColor": "#FF6B35",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "portrait",
+      "preferRelatedApplications": false
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
+  }
+}

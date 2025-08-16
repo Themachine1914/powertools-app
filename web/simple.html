@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools - Versión Simple</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-tools"></i>
+                <span>PowerTools</span>
+            </div>
+            <div class="user-info">
+                <span>Bienvenido, Admin</span>
+                <div class="user-menu-toggle" onclick="toggleUserMenu()">
+                    <i class="fas fa-user-circle"></i>
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem; margin-left: 0.5rem;"></i>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <a href="#" class="user-menu-item" onclick="alert('Perfil funcionando')">
+                        <i class="fas fa-user"></i> Mi Perfil
+                    </a>
+                    <a href="#" class="user-menu-item" onclick="alert('Logout funcionando')">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="showSimpleSection('dashboard', this)">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" onclick="showSimpleSection('inventory', this)">
+                <i class="fas fa-boxes"></i>
+                <span>Inventario</span>
+            </li>
+            <li class="nav-item" onclick="showSimpleSection('quotations', this)">
+                <i class="fas fa-file-invoice"></i>
+                <span>Cotizaciones</span>
+            </li>
+            <li class="nav-item" onclick="showSimpleSection('expenses', this)">
+                <i class="fas fa-wallet"></i>
+                <span>Gastos</span>
+            </li>
+            <li class="nav-item" onclick="showSimpleSection('sales', this)">
+                <i class="fas fa-chart-line"></i>
+                <span>Ventas</span>
+            </li>
+            <li class="nav-item" onclick="showSimpleSection('users', this)">
+                <i class="fas fa-users"></i>
+                <span>Usuarios</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Dashboard</h1>
+                <p>Versión simplificada - Todo funcionando</p>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>25</h3>
+                        <p>Productos</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>$12,450</h3>
+                        <p>Ventas del Mes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>8</h3>
+                        <p>Cotizaciones Pendientes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>3</h3>
+                        <p>Stock Bajo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Section -->
+        <section id="inventory" class="content-section">
+            <div class="section-header">
+                <h1>Inventario</h1>
+                <button class="btn btn-primary" onclick="alert('Funcionalidad de inventario')">
+                    <i class="fas fa-plus"></i> Nuevo Producto
+                </button>
+            </div>
+            <p>Sección de inventario funcionando correctamente.</p>
+        </section>
+
+        <!-- Quotations Section -->
+        <section id="quotations" class="content-section">
+            <div class="section-header">
+                <h1>Cotizaciones</h1>
+                <button class="btn btn-primary" onclick="alert('Funcionalidad de cotizaciones')">
+                    <i class="fas fa-plus"></i> Nueva Cotización
+                </button>
+            </div>
+            <p>Sección de cotizaciones funcionando correctamente.</p>
+        </section>
+
+        <!-- Expenses Section -->
+        <section id="expenses" class="content-section">
+            <div class="section-header">
+                <h1>Gastos</h1>
+                <button class="btn btn-primary" onclick="alert('Funcionalidad de gastos')">
+                    <i class="fas fa-plus"></i> Nuevo Gasto
+                </button>
+            </div>
+            <p>Sección de gastos funcionando correctamente.</p>
+        </section>
+
+        <!-- Sales Section -->
+        <section id="sales" class="content-section">
+            <div class="section-header">
+                <h1>Ventas</h1>
+                <button class="btn btn-primary" onclick="alert('Funcionalidad de ventas')">
+                    <i class="fas fa-plus"></i> Nueva Venta
+                </button>
+            </div>
+            <p>Sección de ventas funcionando correctamente.</p>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users" class="content-section">
+            <div class="section-header">
+                <h1>Gestión de Usuarios</h1>
+                <button class="btn btn-primary" onclick="alert('Funcionalidad de usuarios')">
+                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+                </button>
+            </div>
+            <p>Sección de usuarios funcionando correctamente.</p>
+            <div class="users-list">
+                <div class="user-card">
+                    <strong>Administrador PowerTools</strong>
+                    <p>admin@powertools.com</p>
+                    <span class="status-badge status-active">Activo</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Función simple para cambiar secciones
+        function showSimpleSection(sectionName, element) {
+            console.log('Cambiando a sección:', sectionName);
+            
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover active de todos los nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Mostrar sección seleccionada
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                element.classList.add('active');
+                console.log('Sección mostrada:', sectionName);
+            } else {
+                console.error('Sección no encontrada:', sectionName);
+            }
+        }
+        
+        // Toggle del menú de usuario
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('active');
+        }
+        
+        // Cerrar menú al hacer click fuera
+        document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('user-menu');
+            const userMenuToggle = document.querySelector('.user-menu-toggle');
+            
+            if (userMenu && userMenuToggle && !userMenuToggle.contains(e.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+        
+        // Inicialización simple
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PowerTools Simple - Cargado correctamente');
+            
+            // Crear datos de prueba en localStorage
+            const testData = {
+                products: [
+                    { id: 1, name: 'Taladro', price: 89.99, stock: 15 },
+                    { id: 2, name: 'Martillo', price: 24.99, stock: 8 }
+                ],
+                users: [
+                    { id: 1, username: 'admin', fullName: 'Administrador PowerTools', role: 'admin' }
+                ]
+            };
+            
+            localStorage.setItem('powertools_simple', JSON.stringify(testData));
+            console.log('Datos de prueba guardados');
+        });
+    </script>
+</body>
+</html>

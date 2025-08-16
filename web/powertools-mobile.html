@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD - Gestión Móvil</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Sistema de gestión empresarial PowerTools RD">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PowerTools RD">
+    
+    <!-- Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #FF6B35;
+            --secondary-color: #2E4057;
+            --success-color: #27AE60;
+            --danger-color: #E74C3C;
+            --warning-color: #F39C12;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .mobile-app {
+            max-width: 100vw;
+            min-height: 100vh;
+            background: var(--white);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--white);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            padding: 0 1rem;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            border: none;
+            background: none;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .nav-tab i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .content {
+            padding: 1rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .user-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .user-item {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95A5A6;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .success-message {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .nav-tab {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-tools"></i> PowerTools RD</h1>
+            <p>Sistema de Gestión Empresarial</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </button>
+            <button class="nav-tab" onclick="showSection('users')">
+                <i class="fas fa-users"></i>
+                Usuarios
+            </button>
+            <button class="nav-tab" onclick="showSection('quotations')">
+                <i class="fas fa-file-invoice"></i>
+                Cotizaciones
+            </button>
+            <button class="nav-tab" onclick="showSection('inventory')">
+                <i class="fas fa-boxes"></i>
+                Inventario
+            </button>
+            <button class="nav-tab" onclick="showSection('expenses')">
+                <i class="fas fa-money-bill-wave"></i>
+                Gastos
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Cotizaciones</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">85</div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$24K</div>
+                        <div class="stat-label">Ventas del Mes</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Resumen del Negocio</h3>
+                    <p>Bienvenido al sistema de gestión PowerTools RD. Desde aquí puedes administrar usuarios, cotizaciones, inventario y gastos de manera eficiente.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <h4>Funciones Principales:</h4>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>✅ Gestión de usuarios con roles</li>
+                            <li>✅ Cotizaciones profesionales</li>
+                            <li>✅ Control de inventario</li>
+                            <li>✅ Seguimiento de gastos</li>
+                            <li>✅ Reportes y estadísticas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users" class="section">
+                <div class="card">
+                    <h3><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                    
+                    <div class="user-list" id="userList">
+                        <div class="user-item">
+                            <div class="user-avatar">AP</div>
+                            <div class="user-info">
+                                <div class="user-name">Admin Principal</div>
+                                <div class="user-role">Administrador</div>
+                            </div>
+                            <span class="status-badge status-active">Activo</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar">CM</div>
+                            <div class="user-info">
+                                <div class="user-name">Carlos Manager</div>
+                                <div class="user-role">Gerente</div>
+                            </div>
+                            <span class="status-badge status-active">Activo</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar">ME</div>
+                            <div class="user-info">
+                                <div class="user-name">María Empleada</div>
+                                <div class="user-role">Empleado</div>
+                            </div>
+                            <span class="status-badge status-active">Activo</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar">JV</div>
+                            <div class="user-info">
+                                <div class="user-name">José Viewer</div>
+                                <div class="user-role">Visualizador</div>
+                            </div>
+                            <span class="status-badge status-inactive">Inactivo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quotations Section -->
+            <div id="quotations" class="section">
+                <div class="card">
+                    <h3><i class="fas fa-file-invoice"></i> Cotizaciones</h3>
+                    <p>Sistema de cotizaciones profesionales para clientes.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-file"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Cotización #001</div>
+                                <div class="user-role">Cliente: Constructora ABC</div>
+                            </div>
+                            <span class="status-badge status-active">$2,500</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-file"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Cotización #002</div>
+                                <div class="user-role">Cliente: Taller XYZ</div>
+                            </div>
+                            <span class="status-badge status-active">$1,800</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div id="inventory" class="section">
+                <div class="card">
+                    <h3><i class="fas fa-boxes"></i> Inventario</h3>
+                    <p>Control de stock y productos disponibles.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-drill"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Taladro Profesional</div>
+                                <div class="user-role">Stock: 15 unidades</div>
+                            </div>
+                            <span class="status-badge status-active">$85</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-wrench"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Llave Inglesa</div>
+                                <div class="user-role">Stock: 8 unidades</div>
+                            </div>
+                            <span class="status-badge status-active">$25</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div id="expenses" class="section">
+                <div class="card">
+                    <h3><i class="fas fa-money-bill-wave"></i> Control de Gastos</h3>
+                    <p>Seguimiento de gastos empresariales.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-gas-pump"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Combustible</div>
+                                <div class="user-role">Fecha: 05/08/2025</div>
+                            </div>
+                            <span class="status-badge status-active">$45</span>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar"><i class="fas fa-tools"></i></div>
+                            <div class="user-info">
+                                <div class="user-name">Herramientas</div>
+                                <div class="user-role">Fecha: 03/08/2025</div>
+                            </div>
+                            <span class="status-badge status-active">$120</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB Button -->
+        <button class="fab" onclick="showAddModal()">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Modal -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Agregar Nuevo Usuario</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                
+                <form onsubmit="addUser(event)">
+                    <div class="form-group">
+                        <label for="userName">Nombre Completo:</label>
+                        <input type="text" id="userName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userEmail">Email:</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userRole">Rol:</label>
+                        <select id="userRole" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="admin">Administrador</option>
+                            <option value="manager">Gerente</option>
+                            <option value="employee">Empleado</option>
+                            <option value="viewer">Visualizador</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar Usuario
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo
+        let users = [
+            { id: 1, name: 'Admin Principal', email: 'admin@powertools.com', role: 'admin', status: 'active' },
+            { id: 2, name: 'Carlos Manager', email: 'carlos@powertools.com', role: 'manager', status: 'active' },
+            { id: 3, name: 'María Empleada', email: 'maria@powertools.com', role: 'employee', status: 'active' },
+            { id: 4, name: 'José Viewer', email: 'jose@powertools.com', role: 'viewer', status: 'inactive' }
+        ];
+
+        // Navegación entre secciones
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover clase active de todos los tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar sección seleccionada
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Activar tab correspondiente
+            event.target.classList.add('active');
+        }
+
+        // Modal functions
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        // Agregar usuario
+        function addUser(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const role = document.getElementById('userRole').value;
+            
+            // Crear nuevo usuario
+            const newUser = {
+                id: users.length + 1,
+                name: name,
+                email: email,
+                role: role,
+                status: 'active'
+            };
+            
+            users.push(newUser);
+            
+            // Actualizar lista
+            renderUsers();
+            
+            // Cerrar modal
+            closeModal();
+            
+            // Limpiar formulario
+            event.target.reset();
+            
+            // Mostrar mensaje de éxito
+            showSuccess('Usuario agregado exitosamente');
+        }
+
+        // Renderizar usuarios
+        function renderUsers() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            
+            users.forEach(user => {
+                const initials = user.name.split(' ').map(n => n[0]).join('');
+                const roleNames = {
+                    admin: 'Administrador',
+                    manager: 'Gerente',
+                    employee: 'Empleado',
+                    viewer: 'Visualizador'
+                };
+                
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-role">${roleNames[user.role]}</div>
+                    </div>
+                    <span class="status-badge status-${user.status}">
+                        ${user.status === 'active' ? 'Activo' : 'Inactivo'}
+                    </span>
+                `;
+                
+                userList.appendChild(userItem);
+            });
+        }
+
+        // Mostrar mensaje de éxito
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            document.querySelector('.content').insertBefore(successDiv, document.querySelector('.content').firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            renderUsers();
+            console.log('📱 PowerTools RD Mobile iniciado correctamente');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+/* Estilos adicionales para cotizaciones */
+
+/* Modal de detalles */
+.document-details {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Modal de compartir */
+.modal-content textarea {
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+    background-color: #f8f9fa;
+}
+
+.modal-content .btn {
+    margin: 5px;
+}
+
+.modal-content .btn i {
+    margin-right: 8px;
+}
+
+.detail-section {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h3 {
+    color: #FF6B35;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-item label {
+    font-weight: bold;
+    color: #2E4057;
+    font-size: 0.9em;
+}
+
+.detail-item span {
+    color: #333;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.detail-table th,
+.detail-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.detail-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2E4057;
+}
+
+.detail-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Botones de acción en modal de detalles */
+.form-actions {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Vista de lista vs grid */
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.documents-list .quotation-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.documents-list .document-header {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.documents-list .client-info {
+    flex: 2;
+    padding: 0 20px;
+}
+
+.documents-list .document-summary {
+    flex: 1;
+    text-align: right;
+}
+
+.documents-list .document-actions {
+    margin-left: 20px;
+}
+
+/* Botón de cambio de vista */
+.view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #2E4057;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+
+.view-toggle:hover {
+    background: #FF6B35;
+}
+
+/* Filtros y búsqueda */
+.quotations-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 40px 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.search-box i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    background: white;
+}
+
+/* Badges de estado mejorados */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.status-borrador {
+    background: #6c757d;
+    color: white;
+}
+
+.status-badge.status-enviada {
+    background: #007bff;
+    color: white;
+}
+
+.status-badge.status-aceptada {
+    background: #28a745;
+    color: white;
+}
+
+.status-badge.status-rechazada {
+    background: #dc3545;
+    color: white;
+}
+
+.status-badge.status-vencida {
+    background: #fd7e14;
+    color: white;
+}
+
+.status-badge.status-facturada {
+    background: #17a2b8;
+    color: white;
+}
+
+/* Información adicional en cards */
+.rnc-info,
+.tax-info,
+.formal-invoice {
+    font-size: 0.8em;
+    color: #28a745;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.formal-invoice {
+    color: #FF6B35;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .documents-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        justify-content: center;
+    }
+    
+    .quotations-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .search-box {
+        min-width: auto;
+    }
+    
+    .filter-controls {
+        justify-content: space-between;
+    }
+    
+    .documents-list .quotation-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .documents-list .document-header {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 15px;
+    }
+    
+    .documents-list .client-info {
+        padding: 10px 0;
+    }
+    
+    .documents-list .document-actions {
+        margin-left: 0;
+        margin-top: 15px;
+        justify-content: center;
+    }
+}

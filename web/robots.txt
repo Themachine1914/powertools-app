@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# PowerTools RD - Sistema de Gestión Empresarial
+# Sitemap y recursos principales
+Sitemap: /sitemap.xml
+
+# Archivos de la PWA
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /assets/
+Allow: /offline.html
+
+# Políticas de crawleo
+Crawl-delay: 1

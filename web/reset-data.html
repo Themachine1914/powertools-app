@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Datos - PowerTools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .logo {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2E4057;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 12px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #229954;
+        }
+        .btn-info {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔧</div>
+        <h1>Gestión de Datos PowerTools</h1>
+        <p>Usa estas herramientas para gestionar los datos de la aplicación:</p>
+        
+        <button class="btn btn-danger" onclick="clearAllData()">
+            🗑️ Limpiar TODOS los datos
+        </button>
+        
+        <button class="btn btn-success" onclick="loadSampleData()">
+            📝 Cargar datos de muestra
+        </button>
+        
+        <button class="btn btn-info" onclick="showCurrentData()">
+            📊 Mostrar datos actuales
+        </button>
+        
+        <button class="btn btn-info" onclick="goToApp()">
+            🚀 Ir a la aplicación
+        </button>
+        
+        <div id="status" class="status"></div>
+        
+        <div id="dataDisplay" style="margin-top: 20px; text-align: left; font-family: monospace; font-size: 12px; background: #f8f9fa; padding: 15px; border-radius: 5px; display: none;">
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        function clearAllData() {
+            if (confirm('¿Estás seguro? Esto eliminará TODOS los datos de la aplicación.')) {
+                localStorage.clear();
+                showStatus('✅ Todos los datos han sido eliminados', 'success');
+            }
+        }
+        
+        function loadSampleData() {
+            if (confirm('¿Cargar datos de muestra? Esto sobrescribirá los datos existentes.')) {
+                localStorage.clear();
+                showStatus('✅ Datos eliminados. Ahora recarga la aplicación para cargar datos de muestra.', 'warning');
+            }
+        }
+        
+        function showCurrentData() {
+            const display = document.getElementById('dataDisplay');
+            let content = '<strong>Datos en localStorage:</strong>\n\n';
+            
+            if (localStorage.length === 0) {
+                content += 'No hay datos almacenados.\n';
+            } else {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    content += `${key}: ${value.length > 100 ? value.substring(0, 100) + '...' : value}\n\n`;
+                }
+            }
+            
+            display.innerHTML = content.replace(/\n/g, '<br>');
+            display.style.display = display.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function goToApp() {
+            window.location.href = 'acceso.html';
+        }
+    </script>
+</body>
+</html>

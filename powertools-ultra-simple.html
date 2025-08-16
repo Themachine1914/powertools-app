@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; background: #f5f5f7; }
+        .header { background: linear-gradient(135deg, #FF6B35, #2E4057); color: white; padding: 20px; text-align: center; }
+        .nav { display: flex; background: white; }
+        .nav a { flex: 1; padding: 15px; text-align: center; color: #666; text-decoration: none; border-bottom: 3px solid transparent; }
+        .nav a.active { color: #FF6B35; border-bottom-color: #FF6B35; }
+        .content { padding: 20px; }
+        .card { background: white; padding: 20px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .stat { background: linear-gradient(135deg, #FF6B35, #F39C12); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-num { font-size: 2em; font-weight: bold; }
+        .user { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #eee; display: flex; align-items: center; }
+        .avatar { width: 50px; height: 50px; background: #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .btn { background: #FF6B35; color: white; padding: 15px 20px; border: none; border-radius: 8px; font-size: 16px; margin: 10px 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 PowerTools RD</h1>
+        <p>Sistema de Gestión Empresarial</p>
+    </div>
+
+    <div class="nav">
+        <a href="#" onclick="showSection('dashboard')" class="active">📊 Dashboard</a>
+        <a href="#" onclick="showSection('users')">👥 Usuarios</a>
+        <a href="#" onclick="showSection('quotes')">📋 Cotizaciones</a>
+    </div>
+
+    <div class="content">
+        <div id="dashboard" class="section active">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-num">4</div>
+                    <div>Usuarios</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">12</div>
+                    <div>Cotizaciones</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">85</div>
+                    <div>Productos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">$24K</div>
+                    <div>Ventas</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🚀 Bienvenido a PowerTools RD</h3>
+                <p>Sistema completo de gestión empresarial.</p>
+                <p><strong>Funciones principales:</strong></p>
+                <p>✅ Gestión de usuarios<br>
+                ✅ Cotizaciones profesionales<br>
+                ✅ Control de inventario<br>
+                ✅ Seguimiento de gastos</p>
+                
+                <button class="btn" onclick="alert('¡Función disponible!')">Crear Cotización</button>
+                <button class="btn" onclick="alert('¡Función disponible!')">Ver Reportes</button>
+            </div>
+        </div>
+
+        <div id="users" class="section">
+            <div class="card">
+                <h3>👥 Gestión de Usuarios</h3>
+                
+                <div class="user">
+                    <div class="avatar">AP</div>
+                    <div>
+                        <div><strong>Admin Principal</strong></div>
+                        <div style="color: #666; font-size: 14px;">Administrador - Activo</div>
+                    </div>
+                </div>
+                
+                <div class="user">
+                    <div class="avatar">CM</div>
+                    <div>
+                        <div><strong>Carlos Manager</strong></div>
+                        <div style="color: #666; font-size: 14px;">Gerente - Activo</div>
+                    </div>
+                </div>
+                
+                <div class="user">
+                    <div class="avatar">ME</div>
+                    <div>
+                        <div><strong>María Empleada</strong></div>
+                        <div style="color: #666; font-size: 14px;">Empleado - Activo</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addUser()">➕ Agregar Usuario</button>
+            </div>
+        </div>
+
+        <div id="quotes" class="section">
+            <div class="card">
+                <h3>📋 Cotizaciones</h3>
+                
+                <div class="user">
+                    <div class="avatar">📄</div>
+                    <div>
+                        <div><strong>Cotización #001</strong></div>
+                        <div style="color: #666; font-size: 14px;">Constructora ABC - $2,500</div>
+                    </div>
+                </div>
+                
+                <div class="user">
+                    <div class="avatar">📄</div>
+                    <div>
+                        <div><strong>Cotización #002</strong></div>
+                        <div style="color: #666; font-size: 14px;">Taller XYZ - $1,800</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="createQuote()">➕ Nueva Cotización</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+            
+            // Mostrar sección seleccionada
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function addUser() {
+            var name = prompt('Nombre del usuario:');
+            if (name) {
+                alert('Usuario "' + name + '" agregado exitosamente!');
+            }
+        }
+
+        function createQuote() {
+            var client = prompt('Nombre del cliente:');
+            if (client) {
+                alert('Cotización para "' + client + '" creada exitosamente!');
+            }
+        }
+
+        // Hacer que funcione en móviles
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PowerTools RD cargado correctamente');
+        });
+    </script>
+</body>
+</html>

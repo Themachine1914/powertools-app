@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD - Gestión de Herramientas</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Sistema completo de gestión empresarial para PowerTools RD - Cotizaciones, Facturas, Inventario, Gastos y Usuarios">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PowerTools RD">
+    <meta name="msapplication-TileColor" content="#FF6B35">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/icon-512x512.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
+    
+    <!-- Fallback Icons -->
+    <link rel="icon" type="image/png" href="assets/images/powertools-logo.png">
+    <link rel="apple-touch-icon" href="assets/images/powertools-logo.png">
+    <link rel="icon" href="assets/images/powertools-logo.svg" type="image/svg+xml">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="quotations-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <picture class="logo-container">
+                    <source srcset="assets/images/powertools-logo.svg" type="image/svg+xml">
+                    <img src="assets/images/powertools-logo.svg" alt="PowerTools RD" class="logo-image powertools-logo" 
+                         onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
+                </picture>
+                <div class="logo-fallback" style="display: none;">
+                    <span class="logo-drill">⚡</span>
+                    <span class="logo-text">PowerTools RD</span>
+                </div>
+                <span class="company-name">PowerTools <span class="logo-rd">RD</span></span>
+            </div>
+            <div class="user-info">
+                <span>Bienvenido, Admin</span>
+                <div class="user-menu-toggle" onclick="toggleUserMenu()">
+                    <i class="fas fa-user-circle"></i>
+                    <i class="fas fa-chevron-down" style="font-size: 0.8rem; margin-left: 0.5rem;"></i>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <a href="#" class="user-menu-item" onclick="alert('Perfil próximamente')">
+                        <i class="fas fa-user"></i> Mi Perfil
+                    </a>
+                    <a href="#" class="user-menu-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" data-section="inventory">
+                <i class="fas fa-boxes"></i>
+                <span>Inventario</span>
+            </li>
+            <li class="nav-item" data-section="quotations">
+                <i class="fas fa-file-invoice"></i>
+                <span>Cotizaciones</span>
+            </li>
+            <li class="nav-item" data-section="expenses">
+                <i class="fas fa-wallet"></i>
+                <span>Gastos</span>
+            </li>
+            <li class="nav-item" data-section="sales">
+                <i class="fas fa-chart-line"></i>
+                <span>Ventas</span>
+            </li>
+            <li class="nav-item" data-section="users">
+                <i class="fas fa-users"></i>
+                <span>Usuarios</span>
+            </li>
+            <li class="nav-item" data-section="settings">
+                <i class="fas fa-cogs"></i>
+                <span>Configuración</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Dashboard</h1>
+                <p>Resumen general de tu negocio PowerTools</p>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-products">0</h3>
+                        <p>Total de Productos</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="low-stock-products">0</h3>
+                        <p>Productos con Stock Bajo</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="inventory-value">$0</h3>
+                        <p>Valor Total Inventario</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="profit-margin">0%</h3>
+                        <p>Margen Promedio</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alertas de Inventario -->
+            <div class="inventory-alerts">
+                <div class="alert-section">
+                    <h2><i class="fas fa-bell"></i> Alertas de Inventario</h2>
+                    <div id="inventory-alerts-list" class="alerts-list">
+                        <!-- Se cargan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Productos Destacados -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-trophy"></i> Productos Más Vendidos</h3>
+                    <div id="top-products" class="top-products-list">
+                        <!-- Se cargan dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-clock"></i> Productos Sin Movimiento</h3>
+                    <div id="inactive-products" class="inactive-products-list">
+                        <!-- Se cargan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="low-stock">0</h3>
+                        <p>Stock Bajo</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="recent-activities">
+                    <h3>Actividades Recientes</h3>
+                    <div id="recent-activities">
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background-color: #27AE60">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="activity-info">
+                                <strong>Nueva venta</strong>
+                                <span>Juan Pérez - $89.99 • Hace 2 horas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background-color: #F39C12">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <div class="activity-info">
+                                <strong>Cotización enviada</strong>
+                                <span>Constructora ABC - $1,250 • Hace 4 horas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Section -->
+        <section id="inventory" class="content-section">
+            <div class="section-header">
+                <h1>Inventario</h1>
+                <button class="btn btn-primary" onclick="openProductModal()">
+                    <i class="fas fa-plus"></i> Nuevo Producto
+                </button>
+            </div>
+            
+            <div class="inventory-controls">
+                <div class="search-box">
+                    <input type="text" id="search-products" placeholder="Buscar productos...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="category-filter">
+                        <option value="">Todas las categorías</option>
+                        <option value="herramientas-manuales">Herramientas Manuales</option>
+                        <option value="herramientas-electricas">Herramientas Eléctricas</option>
+                        <option value="materiales">Materiales</option>
+                        <option value="seguridad">Seguridad</option>
+                    </select>
+                    <div class="view-controls">
+                        <button id="grid-view" class="view-btn active" onclick="setViewMode('grid')" title="Vista en cuadros">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="list-view" class="view-btn" onclick="setViewMode('list')" title="Vista en lista">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="products-grid" id="products-grid">
+                <!-- Los productos se cargan dinámicamente -->
+            </div>
+            
+            <div class="products-list" id="products-list">
+                <!-- Vista en lista se carga dinámicamente -->
+            </div>
+            
+            <!-- Historial de Movimientos -->
+            <div class="inventory-history">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Historial de Movimientos</h2>
+                    <div class="history-controls">
+                        <select id="movement-filter">
+                            <option value="">Todos los movimientos</option>
+                            <option value="entrada">Entradas</option>
+                            <option value="salida">Salidas</option>
+                            <option value="ajuste">Ajustes</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" onclick="exportMovementHistory()">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="movement-history-table" id="movement-history">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Quotations Section -->
+        <section id="quotations" class="content-section">
+            <div class="section-header">
+                <h1>Cotizaciones</h1>
+                <button class="btn btn-primary" onclick="openQuotationModal()">
+                    <i class="fas fa-plus"></i> Nueva Cotización
+                </button>
+            </div>
+            
+            <div class="quotations-controls">
+                <div class="search-box">
+                    <input type="text" id="quotations-search" placeholder="Buscar cotizaciones...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="quotations-status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="borrador">Borrador</option>
+                        <option value="enviada">Enviada</option>
+                        <option value="aceptada">Aceptada</option>
+                        <option value="rechazada">Rechazada</option>
+                        <option value="vencida">Vencida</option>
+                    </select>
+                    <button class="btn view-toggle" onclick="toggleQuotationView()">
+                        <i class="fas fa-list"></i> Vista Lista
+                    </button>
+                </div>
+            </div>
+            
+            <div class="quotations-grid" id="quotations-grid">
+                <!-- Las cotizaciones se cargan dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Sales Section -->
+        <section id="sales" class="content-section">
+            <div class="section-header">
+                <h1>Facturas / Ventas</h1>
+                <button class="btn btn-primary" onclick="openInvoiceModal()">
+                    <i class="fas fa-plus"></i> Nueva Factura
+                </button>
+            </div>
+            
+            <div class="sales-controls">
+                <div class="search-box">
+                    <input type="text" id="search-invoices" placeholder="Buscar facturas...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="invoice-status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="borrador">Borrador</option>
+                        <option value="enviada">Enviada</option>
+                        <option value="pagada">Pagada</option>
+                        <option value="vencida">Vencida</option>
+                    </select>
+                    <select id="payment-method-filter">
+                        <option value="">Todos los métodos</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="credito">Crédito</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="invoices-grid" id="invoices-grid">
+                <!-- Las facturas se cargan dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Expenses Section -->
+        <section id="expenses" class="content-section">
+            <div class="section-header">
+                <h1><i class="fas fa-receipt"></i> Control de Gastos</h1>
+                <button class="btn btn-primary" onclick="openExpenseModal()">
+                    <i class="fas fa-plus"></i> Nuevo Gasto
+                </button>
+            </div>
+
+            <!-- Resumen de Gastos -->
+            <div class="expenses-summary">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="expenses-today">$0.00</h3>
+                        <p>Gastos de Hoy</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="expenses-month">$0.00</h3>
+                        <p>Gastos del Mes</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="expenses-pending">0</h3>
+                        <p>Gastos Pendientes</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="expenses-total">$0.00</h3>
+                        <p>Total General</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Gastos -->
+            <div class="expenses-charts">
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-pie"></i> Gastos por Categoría</h3>
+                    <canvas id="expenses-category-chart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-line"></i> Tendencia de Gastos</h3>
+                    <canvas id="expenses-trend-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Controles de Gastos -->
+            <div class="expenses-controls">
+                <div class="search-box">
+                    <input type="text" id="search-expenses" placeholder="Buscar gastos...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="expense-category-filter">
+                        <option value="">Todas las categorías</option>
+                        <option value="inventario">🏪 Inventario</option>
+                        <option value="operativos">🏢 Operativos</option>
+                        <option value="personal">👥 Personal</option>
+                        <option value="marketing">📈 Marketing</option>
+                        <option value="mantenimiento">🔧 Mantenimiento</option>
+                        <option value="administrativos">📋 Administrativos</option>
+                        <option value="servicios">⚡ Servicios</option>
+                        <option value="transporte">🚛 Transporte</option>
+                    </select>
+                    <select id="expense-status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">⏳ Pendiente</option>
+                        <option value="pagado">✅ Pagado</option>
+                        <option value="vencido">❌ Vencido</option>
+                        <option value="cancelado">🚫 Cancelado</option>
+                    </select>
+                    <select id="expense-period-filter">
+                        <option value="all">Todos los períodos</option>
+                        <option value="today">Hoy</option>
+                        <option value="week">Esta semana</option>
+                        <option value="month">Este mes</option>
+                        <option value="quarter">Este trimestre</option>
+                        <option value="year">Este año</option>
+                    </select>
+                    <div class="view-controls">
+                        <button id="expenses-grid-view" class="view-btn active" onclick="setExpensesView('grid')" title="Vista en cuadros">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="expenses-list-view" class="view-btn" onclick="setExpensesView('list')" title="Vista en lista">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportExpenses()">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Gastos -->
+            <div class="expenses-grid" id="expenses-grid">
+                <!-- Los gastos se cargan dinámicamente -->
+            </div>
+
+            <!-- Lista de Gastos -->
+            <div class="expenses-list" id="expenses-list" style="display: none;">
+                <!-- Vista en lista se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users" class="content-section">
+            <div class="section-header">
+                <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+                <button class="btn btn-primary" onclick="openUserModal()">
+                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+                </button>
+            </div>
+
+            <!-- Users Stats -->
+            <div class="users-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-users">0</h3>
+                        <p>Total de Usuarios</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="active-users">0</h3>
+                        <p>Usuarios Activos</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="admin-users">0</h3>
+                        <p>Administradores</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card info">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="recent-logins">0</h3>
+                        <p>Sesiones Hoy</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Controls -->
+            <div class="users-controls">
+                <div class="search-box">
+                    <input type="text" id="search-users" placeholder="Buscar usuarios...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="role-filter">
+                        <option value="">Todos los roles</option>
+                        <option value="admin">Administrador</option>
+                        <option value="manager">Gerente</option>
+                        <option value="employee">Empleado</option>
+                        <option value="viewer">Solo Lectura</option>
+                    </select>
+                    <select id="status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="suspended">Suspendido</option>
+                    </select>
+                    <button class="btn view-toggle" onclick="toggleUsersView()">
+                        <i class="fas fa-list"></i> Vista Lista
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Grid -->
+            <div class="users-grid" id="users-grid">
+                <!-- Los usuarios se cargan dinámicamente -->
+            </div>
+
+            <!-- Users List -->
+            <div class="users-list" id="users-list" style="display: none;">
+                <!-- Vista en lista se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="content-section">
+            <div class="section-header">
+                <h1><i class="fas fa-cogs"></i> Configuración de Empresa</h1>
+                <button class="btn btn-success" onclick="saveCompanySettings()">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+
+            <!-- Company Profile -->
+            <div class="settings-container">
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3><i class="fas fa-building"></i> Perfil de Empresa</h3>
+                    </div>
+                    <div class="settings-card-content">
+                        <!-- Logo Section -->
+                        <div class="logo-upload-section">
+                            <div class="current-logo">
+                                <h4>Logo Actual</h4>
+                                <div class="logo-preview" id="logo-preview">
+                                    <picture>
+                                        <source srcset="assets/images/powertools-logo.svg" type="image/svg+xml">
+                                        <img src="assets/images/powertools-logo.svg" alt="PowerTools RD" id="current-logo-img" class="powertools-logo"
+                                             onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
+                                    </picture>
+                                    <div class="logo-fallback" style="display: none;">
+                                        <span class="logo-drill">⚡</span>
+                                        <span class="logo-text">PowerTools RD</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline" onclick="changeLogo()">
+                                    <i class="fas fa-image"></i> Cambiar Logo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Company Info Form -->
+                        <div class="company-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="company-name">Nombre de la Empresa *</label>
+                                    <input type="text" id="company-name" placeholder="PowerTools RD" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="company-slogan">Eslogan</label>
+                                    <input type="text" id="company-slogan" placeholder="Tu socio en herramientas profesionales">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="company-rnc">RNC *</label>
+                                    <input type="text" id="company-rnc" placeholder="130-12345-6" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="company-phone">Teléfono Principal *</label>
+                                    <input type="tel" id="company-phone" placeholder="(809) 555-0123" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company-email">Email Corporativo *</label>
+                                <input type="email" id="company-email" placeholder="info@powertoolsrd.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company-address">Dirección Fiscal *</label>
+                                <textarea id="company-address" rows="3" placeholder="Calle Principal #123, Sector, Ciudad, República Dominicana" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company-website">Sitio Web</label>
+                                <input type="url" id="company-website" placeholder="https://www.powertoolsrd.com">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3><i class="fas fa-sliders-h"></i> Configuración del Sistema</h3>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Moneda</h4>
+                                    <p>Moneda utilizada en el sistema</p>
+                                </div>
+                                <select id="system-currency">
+                                    <option value="DOP">Peso Dominicano (RD$)</option>
+                                    <option value="USD">Dólar Americano ($)</option>
+                                    <option value="EUR">Euro (€)</option>
+                                </select>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Zona Horaria</h4>
+                                    <p>Zona horaria para fechas y reportes</p>
+                                </div>
+                                <select id="system-timezone">
+                                    <option value="America/Santo_Domingo">Santo Domingo (GMT-4)</option>
+                                    <option value="America/New_York">Nueva York (GMT-5)</option>
+                                    <option value="America/Panama">Panamá (GMT-5)</option>
+                                </select>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Formato de Fecha</h4>
+                                    <p>Formato para mostrar fechas</p>
+                                </div>
+                                <select id="date-format">
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Tema de Color</h4>
+                                    <p>Esquema de colores de la interfaz</p>
+                                </div>
+                                <select id="color-theme">
+                                    <option value="orange">PowerTools (Naranja)</option>
+                                    <option value="blue">Azul Profesional</option>
+                                    <option value="green">Verde Natural</option>
+                                    <option value="dark">Modo Oscuro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Settings -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3><i class="fas fa-chart-line"></i> Configuración de Negocio</h3>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>ITBS por Defecto</h4>
+                                    <p>Tasa de impuesto por defecto (%)</p>
+                                </div>
+                                <input type="number" id="default-tax" value="18" min="0" max="100" step="0.1">
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Margen de Ganancia Mínimo</h4>
+                                    <p>Margen mínimo recomendado (%)</p>
+                                </div>
+                                <input type="number" id="min-profit-margin" value="20" min="0" max="100" step="1">
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Stock Mínimo por Defecto</h4>
+                                    <p>Cantidad mínima para nuevos productos</p>
+                                </div>
+                                <input type="number" id="default-min-stock" value="5" min="1" step="1">
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Días de Validez de Cotización</h4>
+                                    <p>Días válidos por defecto</p>
+                                </div>
+                                <input type="number" id="quote-validity-days" value="15" min="1" step="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup & Security -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3><i class="fas fa-shield-alt"></i> Respaldo y Seguridad</h3>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="backup-actions">
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Exportar Datos</h4>
+                                    <p>Descargar una copia de seguridad de todos los datos</p>
+                                    <small>Último respaldo: <span id="last-backup-date">Nunca</span></small>
+                                </div>
+                                <button class="btn btn-primary" onclick="exportBackup()">
+                                    <i class="fas fa-download"></i> Exportar
+                                </button>
+                            </div>
+
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Importar Datos</h4>
+                                    <p>Restaurar datos desde un archivo de respaldo</p>
+                                    <small class="text-warning">⚠️ Esto sobrescribirá los datos actuales</small>
+                                </div>
+                                <button class="btn btn-outline" onclick="importBackup()">
+                                    <i class="fas fa-upload"></i> Importar
+                                </button>
+                            </div>
+
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Limpiar Datos</h4>
+                                    <p>Eliminar todos los datos del sistema</p>
+                                    <small class="text-danger">⚠️ Esta acción no se puede deshacer</small>
+                                </div>
+                                <button class="btn btn-danger" onclick="confirmDataCleanup()">
+                                    <i class="fas fa-trash"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h3><i class="fas fa-info-circle"></i> Acerca de PowerTools RD</h3>
+                    </div>
+                    <div class="settings-card-content">
+                        <div class="about-info">
+                            <div class="app-version">
+                                <h4>Versión del Sistema</h4>
+                                <p>PowerTools RD v2.1.0</p>
+                                <small>Sistema de Gestión Integral para Empresas de Herramientas</small>
+                            </div>
+                            
+                            <div class="app-stats">
+                                <div class="stat-row">
+                                    <span>Productos en Sistema:</span>
+                                    <span id="total-products-count">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Cotizaciones Creadas:</span>
+                                    <span id="total-quotations-count">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Facturas Generadas:</span>
+                                    <span id="total-invoices-count">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Gastos Registrados:</span>
+                                    <span id="total-expenses-count">0</span>
+                                </div>
+                            </div>
+
+                            <div class="support-info">
+                                <p><strong>Desarrollado por:</strong> Equipo PowerTools RD</p>
+                                <p><strong>Soporte Técnico:</strong> soporte@powertoolsrd.com</p>
+                                <p><strong>Última Actualización:</strong> <span id="last-update-date">9 de Agosto, 2025</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-content" class="modal-content">
+            <!-- Contenido del modal se inserta dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app-simple.js"></script>
+    <script src="assets/logo-validation-powertools.js"></script>
+
+    <!-- PWA Script -->
+    <script>
+        // Registro del Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('✅ PWA: Service Worker registrado exitosamente:', registration.scope);
+                        
+                        // Verificar actualizaciones del Service Worker
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('❌ PWA: Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+
+        // Prompt de instalación PWA
+        let deferredPrompt;
+        let installPromptShown = localStorage.getItem('pwa-install-prompt-shown');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botón de instalación si no se ha mostrado antes
+            if (!installPromptShown) {
+                showInstallButton();
+            }
+        });
+
+        function showInstallButton() {
+            const installBtn = document.createElement('div');
+            installBtn.id = 'pwa-install-banner';
+            installBtn.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #FF6B35, #2E4057);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 50px;
+                    box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    cursor: pointer;
+                    font-family: 'Inter', sans-serif;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    animation: slideInUp 0.5s ease;
+                    max-width: 300px;
+                    border: none;
+                ">
+                    <i class="fas fa-download"></i>
+                    <span>Instalar PowerTools RD</span>
+                    <button onclick="hideInstallBanner()" style="
+                        background: none;
+                        border: none;
+                        color: white;
+                        font-size: 1.2rem;
+                        cursor: pointer;
+                        margin-left: 0.5rem;
+                        opacity: 0.7;
+                    ">&times;</button>
+                </div>
+            `;
+            
+            installBtn.addEventListener('click', installPWA);
+            document.body.appendChild(installBtn);
+            
+            // Auto-ocultar después de 10 segundos
+            setTimeout(() => {
+                hideInstallBanner();
+            }, 10000);
+        }
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ PWA: Usuario aceptó instalar la app');
+                        showNotification('¡PowerTools RD instalado exitosamente! 🎉', 'success');
+                    } else {
+                        console.log('❌ PWA: Usuario rechazó instalar la app');
+                    }
+                    deferredPrompt = null;
+                    hideInstallBanner();
+                });
+            }
+        }
+
+        function hideInstallBanner() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) {
+                banner.style.animation = 'slideOutDown 0.3s ease';
+                setTimeout(() => {
+                    banner.remove();
+                }, 300);
+            }
+            localStorage.setItem('pwa-install-prompt-shown', 'true');
+        }
+
+        // Detectar cuando la app es instalada
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('🎉 PWA: App instalada exitosamente');
+            showNotification('¡PowerTools RD instalado! Ahora puedes acceder desde tu escritorio 📱', 'success');
+            hideInstallBanner();
+        });
+
+        // Mostrar notificación de actualización
+        function showUpdateNotification() {
+            const updateBanner = document.createElement('div');
+            updateBanner.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4CAF50;
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 10001;
+                    max-width: 300px;
+                    font-family: 'Inter', sans-serif;
+                ">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-sync-alt"></i>
+                        <strong>Actualización Disponible</strong>
+                    </div>
+                    <p style="margin: 0 0 1rem 0; font-size: 0.9rem;">Nueva versión de PowerTools RD disponible</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="reloadApp()" style="
+                            background: white;
+                            color: #4CAF50;
+                            border: none;
+                            padding: 0.5rem 1rem;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 0.8rem;
+                        ">Actualizar</button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                            background: transparent;
+                            color: white;
+                            border: 1px solid white;
+                            padding: 0.5rem 1rem;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 0.8rem;
+                        ">Después</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(updateBanner);
+        }
+
+        function reloadApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then((registration) => {
+                    if (registration && registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            }
+            window.location.reload();
+        }
+
+        // Animaciones CSS para PWA
+        const pwaStyles = document.createElement('style');
+        pwaStyles.textContent = `
+            @keyframes slideInUp {
+                from {
+                    transform: translateY(100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutDown {
+                from {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateY(100px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(pwaStyles);
+
+        // Estadísticas de PWA
+        console.log('📱 PowerTools RD PWA inicializado');
+        console.log('🔧 Service Worker:', 'serviceWorker' in navigator ? 'Soportado' : 'No soportado');
+        console.log('📦 Instalación:', 'BeforeInstallPromptEvent' in window ? 'Soportada' : 'No soportada');
+    </script>
+</body>
+</html>

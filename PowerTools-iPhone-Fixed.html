@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD - Móvil</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0NEwyOCAzNkgzNkw0NCA0NEgyMFYyMFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yOCAyOEgzNkwzMiAzMkg0MEwzNiAzNkgyOFYyOFoiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjciLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjY0IiB5Mj0iNjQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0ZGNkIzNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyRTQwNTciLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f7; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #FF6B35, #2E4057); color: white; padding: 1.5rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 600; }
+        .header p { opacity: 0.9; font-size: 1.1rem; }
+        .nav { display: flex; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        .nav-btn { flex: 1; min-width: 120px; padding: 1rem; text-align: center; border: none; background: none; color: #666; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s ease; }
+        .nav-btn.active { color: #FF6B35; border-bottom-color: #FF6B35; background: rgba(255, 107, 53, 0.05); }
+        .nav-btn:hover { background: rgba(255, 107, 53, 0.1); }
+        .nav-btn i { display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e9ecef; }
+        .card h3 { color: #FF6B35; margin-bottom: 1.5rem; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #FF6B35, #F39C12); color: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3); }
+        .stat-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 1rem; opacity: 0.9; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid #e9ecef; }
+        .table th { background: #f8f9fa; font-weight: 600; color: #2E4057; }
+        .table tr:hover { background: #f8f9fa; }
+        .btn { background: #FF6B35; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; text-decoration: none; }
+        .btn:hover { background: #e55a2b; transform: translateY(-1px); }
+        .btn-secondary { background: #6c757d; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .fab { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: #FF6B35; color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4); z-index: 1000; transition: all 0.3s ease; }
+        .fab:hover { transform: scale(1.1); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; padding: 2rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h2 { color: #FF6B35; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2E4057; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; transition: border-color 0.3s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #FF6B35; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .badge-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .badge-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .badge-danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
+        .chart-container { height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 1rem 0; }
+        .action-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        @media (max-width: 768px) { 
+            .container { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .table { font-size: 0.9rem; }
+            .nav-btn { min-width: 80px; font-size: 0.8rem; }
+            .action-buttons { flex-direction: column; }
+            .btn { justify-content: center; }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 PowerTools RD</h1>
+        <p>Sistema de Gestión Empresarial</p>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('dashboard')">
+            📊<br>Dashboard
+        </button>
+        <button class="nav-btn" onclick="showSection('users')">
+            👥<br>Usuarios
+        </button>
+        <button class="nav-btn" onclick="showSection('quotations')">
+            📋<br>Cotizaciones
+        </button>
+        <button class="nav-btn" onclick="showSection('inventory')">
+            📦<br>Inventario
+        </button>
+        <button class="nav-btn" onclick="showSection('expenses')">
+            💰<br>Gastos
+        </button>
+        <button class="nav-btn" onclick="showSection('sales')">
+            🛒<br>Ventas
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statsUsers">2</div>
+                    <div class="stat-label">Usuarios</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsQuotations">1</div>
+                    <div class="stat-label">Cotizaciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsProducts">6</div>
+                    <div class="stat-label">Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statsSales">$340</div>
+                    <div class="stat-label">Ventas</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Resumen Ejecutivo</h3>
+                <div class="alert alert-success">
+                    💾 <strong>Datos Guardados:</strong> 
+                    Todos los datos se guardan automáticamente en tu dispositivo.
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('quotationModal')">
+                        📋 Nueva Cotización
+                    </button>
+                    <button class="btn btn-success" onclick="showModal('saleModal')">
+                        🛒 Nueva Venta
+                    </button>
+                    <button class="btn btn-warning" onclick="resetAllData()">
+                        🔄 Resetear Datos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users" class="section">
+            <div class="card">
+                <h3>👥 Gestión de Usuarios</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('userModal')">
+                        ➕ Nuevo Usuario
+                    </button>
+                </div>
+                <table class="table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quotations Section -->
+        <div id="quotations" class="section">
+            <div class="card">
+                <h3>📋 Cotizaciones</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('quotationModal')">
+                        ➕ Nueva Cotización
+                    </button>
+                </div>
+                <table class="table" id="quotationsTable">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div id="inventory" class="section">
+            <div class="card">
+                <h3>📦 Inventario</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('productModal')">
+                        ➕ Nuevo Producto
+                    </button>
+                </div>
+                <table class="table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div id="expenses" class="section">
+            <div class="card">
+                <h3>💰 Gastos</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('expenseModal')">
+                        ➕ Nuevo Gasto
+                    </button>
+                </div>
+                <table class="table" id="expensesTable">
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sales Section -->
+        <div id="sales" class="section">
+            <div class="card">
+                <h3>🛒 Ventas</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('saleModal')">
+                        ➕ Nueva Venta
+                    </button>
+                </div>
+                <table class="table" id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB Button -->
+    <button class="fab" onclick="showQuickActions()">➕</button>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Nuevo Usuario</h2>
+                <button class="close-btn" onclick="closeModal('userModal')">✖</button>
+            </div>
+            <form onsubmit="saveUser(event)">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="userName" required placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail" required placeholder="usuario@powertools.com">
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="userRole" required>
+                        <option value="">Seleccionar rol</option>
+                        <option value="admin">Administrador</option>
+                        <option value="manager">Gerente</option>
+                        <option value="employee">Empleado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="userPhone" placeholder="(809) 123-4567">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">💾 Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quotation Modal -->
+    <div id="quotationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Nueva Cotización</h2>
+                <button class="close-btn" onclick="closeModal('quotationModal')">✖</button>
+            </div>
+            <form onsubmit="saveQuotation(event)">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="quotationClient" required placeholder="Nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select id="quotationProduct" required onchange="updateQuotationPrice()">
+                        <option value="">Seleccionar producto...</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="quotationQuantity" min="1" value="1" onchange="updateQuotationTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="number" id="quotationTotal" readonly style="background: #f8f9fa;">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">💾 Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('quotationModal')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📦 Nuevo Producto</h2>
+                <button class="close-btn" onclick="closeModal('productModal')">✖</button>
+            </div>
+            <form onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label>Nombre del Producto</label>
+                    <input type="text" id="productName" required placeholder="Ej: Taladro Profesional">
+                </div>
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" id="productCode" required placeholder="Ej: PROD-001">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="productStock" min="0" required placeholder="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" id="productPrice" step="0.01" min="0" required placeholder="85.00">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">💾 Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 Nuevo Gasto</h2>
+                <button class="close-btn" onclick="closeModal('expenseModal')">✖</button>
+            </div>
+            <form onsubmit="saveExpense(event)">
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <input type="text" id="expenseDescription" required placeholder="Ej: Combustible">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Monto</label>
+                        <input type="number" id="expenseAmount" step="0.01" min="0" required placeholder="45.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Proveedor</label>
+                    <input type="text" id="expenseProvider" placeholder="Ej: Estación Shell">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">💾 Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('expenseModal')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div id="saleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🛒 Nueva Venta</h2>
+                <button class="close-btn" onclick="closeModal('saleModal')">✖</button>
+            </div>
+            <form onsubmit="saveSale(event)">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="saleClient" required placeholder="Nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select id="saleProduct" required onchange="updateSaleTotal()">
+                        <option value="">Seleccionar producto...</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="saleQuantity" min="1" value="1" onchange="updateSaleTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="number" id="saleTotal" readonly style="background: #f8f9fa;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Método de Pago</label>
+                    <select id="salePayment" required>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">💾 Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('saleModal')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Funciones de persistencia
+        function saveToStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch(e) {
+                console.error('Error saving to storage:', e);
+            }
+        }
+
+        function loadFromStorage(key, defaultData) {
+            try {
+                const saved = localStorage.getItem(key);
+                return saved ? JSON.parse(saved) : defaultData;
+            } catch(e) {
+                console.error('Error loading from storage:', e);
+                return defaultData;
+            }
+        }
+
+        // Datos por defecto
+        const defaultUsers = [
+            { id: 1, name: 'Admin Principal', email: 'admin@powertools.com', role: 'admin', status: 'active' },
+            { id: 2, name: 'Carlos Manager', email: 'carlos@powertools.com', role: 'manager', status: 'active' }
+        ];
+
+        const defaultQuotations = [
+            { id: 1, number: 'COT-001', client: 'Constructora ABC', total: 2500, status: 'pending' }
+        ];
+
+        const defaultProducts = [
+            { id: 1, code: 'PROD-001', name: 'Taladro Profesional', stock: 15, price: 85 },
+            { id: 2, code: 'PROD-002', name: 'Llave Inglesa Set', stock: 8, price: 25 },
+            { id: 3, code: 'PROD-003', name: 'Martillo de Acero', stock: 12, price: 35 },
+            { id: 4, code: 'PROD-004', name: 'Destornillador Set', stock: 20, price: 18 },
+            { id: 5, code: 'PROD-005', name: 'Sierra Circular', stock: 5, price: 150 },
+            { id: 6, code: 'PROD-006', name: 'Nivel de Burbuja', stock: 10, price: 12 }
+        ];
+
+        const defaultExpenses = [
+            { id: 1, description: 'Combustible', amount: 45, date: '2025-08-10', provider: 'Estación Shell' }
+        ];
+
+        const defaultSales = [
+            { id: 1, invoice: 'FAC-001', client: 'Juan Pérez', total: 340, payment: 'efectivo', status: 'paid' }
+        ];
+
+        // Variables globales
+        let users = loadFromStorage('powertools_users', defaultUsers);
+        let quotations = loadFromStorage('powertools_quotations', defaultQuotations);
+        let products = loadFromStorage('powertools_products', defaultProducts);
+        let expenses = loadFromStorage('powertools_expenses', defaultExpenses);
+        let sales = loadFromStorage('powertools_sales', defaultSales);
+
+        // Navegación
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+            updateStats();
+        }
+
+        // Modales
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            
+            // Auto-completar fecha
+            const dateFields = document.querySelectorAll('#' + modalId + ' input[type="date"]');
+            dateFields.forEach(field => {
+                if (!field.value) {
+                    field.value = new Date().toISOString().split('T')[0];
+                }
+            });
+            
+            // Cargar productos
+            if (modalId === 'quotationModal' || modalId === 'saleModal') {
+                loadProducts(modalId);
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function loadProducts(modalId) {
+            const selectId = modalId === 'quotationModal' ? 'quotationProduct' : 'saleProduct';
+            const select = document.getElementById(selectId);
+            
+            select.innerHTML = '<option value="">Seleccionar producto...</option>';
+            
+            products.forEach(product => {
+                if (product.stock > 0) {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = `${product.name} - $${product.price} (Stock: ${product.stock})`;
+                    option.dataset.price = product.price;
+                    option.dataset.name = product.name;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function updateQuotationPrice() {
+            const select = document.getElementById('quotationProduct');
+            const totalField = document.getElementById('quotationTotal');
+            
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                const price = parseFloat(selectedOption.dataset.price);
+                const quantity = parseInt(document.getElementById('quotationQuantity').value);
+                totalField.value = (price * quantity).toFixed(2);
+            } else {
+                totalField.value = '';
+            }
+        }
+
+        function updateQuotationTotal() {
+            updateQuotationPrice();
+        }
+
+        function updateSaleTotal() {
+            const select = document.getElementById('saleProduct');
+            const totalField = document.getElementById('saleTotal');
+            
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                const price = parseFloat(selectedOption.dataset.price);
+                const quantity = parseInt(document.getElementById('saleQuantity').value);
+                totalField.value = (price * quantity).toFixed(2);
+            } else {
+                totalField.value = '';
+            }
+        }
+
+        // Funciones de guardado
+        function saveUser(event) {
+            event.preventDefault();
+            const newUser = {
+                id: Date.now(),
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value,
+                phone: document.getElementById('userPhone').value,
+                status: 'active'
+            };
+            
+            users.push(newUser);
+            saveToStorage('powertools_users', users);
+            updateUsersTable();
+            showAlert(`Usuario ${newUser.name} creado exitosamente`, 'success');
+            closeModal('userModal');
+            event.target.reset();
+        }
+
+        function saveQuotation(event) {
+            event.preventDefault();
+            const productSelect = document.getElementById('quotationProduct');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            
+            const newQuotation = {
+                id: Date.now(),
+                number: `COT-${String(quotations.length + 1).padStart(3, '0')}`,
+                client: document.getElementById('quotationClient').value,
+                product: selectedOption.dataset.name,
+                quantity: parseInt(document.getElementById('quotationQuantity').value),
+                total: parseFloat(document.getElementById('quotationTotal').value),
+                status: 'pending'
+            };
+            
+            quotations.push(newQuotation);
+            saveToStorage('powertools_quotations', quotations);
+            updateQuotationsTable();
+            showAlert(`Cotización ${newQuotation.number} creada`, 'success');
+            closeModal('quotationModal');
+            event.target.reset();
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            const newProduct = {
+                id: Date.now(),
+                code: document.getElementById('productCode').value,
+                name: document.getElementById('productName').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                price: parseFloat(document.getElementById('productPrice').value)
+            };
+            
+            products.push(newProduct);
+            saveToStorage('powertools_products', products);
+            updateProductsTable();
+            showAlert(`Producto ${newProduct.name} agregado`, 'success');
+            closeModal('productModal');
+            event.target.reset();
+        }
+
+        function saveExpense(event) {
+            event.preventDefault();
+            const newExpense = {
+                id: Date.now(),
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value,
+                provider: document.getElementById('expenseProvider').value
+            };
+            
+            expenses.push(newExpense);
+            saveToStorage('powertools_expenses', expenses);
+            updateExpensesTable();
+            showAlert(`Gasto registrado: $${newExpense.amount}`, 'success');
+            closeModal('expenseModal');
+            event.target.reset();
+        }
+
+        function saveSale(event) {
+            event.preventDefault();
+            const productSelect = document.getElementById('saleProduct');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            
+            const newSale = {
+                id: Date.now(),
+                invoice: `FAC-${String(sales.length + 1).padStart(3, '0')}`,
+                client: document.getElementById('saleClient').value,
+                product: selectedOption.dataset.name,
+                quantity: parseInt(document.getElementById('saleQuantity').value),
+                total: parseFloat(document.getElementById('saleTotal').value),
+                payment: document.getElementById('salePayment').value,
+                status: 'paid'
+            };
+            
+            sales.push(newSale);
+            saveToStorage('powertools_sales', sales);
+            updateSalesTable();
+            showAlert(`Venta ${newSale.invoice} registrada`, 'success');
+            closeModal('saleModal');
+            event.target.reset();
+        }
+
+        // Funciones de actualización de tablas
+        function updateUsersTable() {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.role}</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteUser(${user.id})">🗑</button>
+                    </td>
+                `;
+            });
+        }
+
+        function updateQuotationsTable() {
+            const tbody = document.querySelector('#quotationsTable tbody');
+            tbody.innerHTML = '';
+            
+            quotations.forEach(quotation => {
+                const statusBadge = quotation.status === 'pending' 
+                    ? '<span class="badge badge-warning">Pendiente</span>'
+                    : '<span class="badge badge-success">Aprobada</span>';
+                
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${quotation.number}</td>
+                    <td>${quotation.client}</td>
+                    <td>$${quotation.total}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-success" onclick="approveQuotation(${quotation.id})">✓</button>
+                    </td>
+                `;
+            });
+        }
+
+        function updateProductsTable() {
+            const tbody = document.querySelector('#productsTable tbody');
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const statusBadge = product.stock > 0 
+                    ? '<span class="badge badge-success">Disponible</span>'
+                    : '<span class="badge badge-danger">Agotado</span>';
+                
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.stock}</td>
+                    <td>$${product.price}</td>
+                    <td>${statusBadge}</td>
+                `;
+            });
+        }
+
+        function updateExpensesTable() {
+            const tbody = document.querySelector('#expensesTable tbody');
+            tbody.innerHTML = '';
+            
+            expenses.forEach(expense => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${expense.description}</td>
+                    <td>$${expense.amount}</td>
+                    <td>${expense.date}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteExpense(${expense.id})">🗑</button>
+                    </td>
+                `;
+            });
+        }
+
+        function updateSalesTable() {
+            const tbody = document.querySelector('#salesTable tbody');
+            tbody.innerHTML = '';
+            
+            sales.forEach(sale => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${sale.invoice}</td>
+                    <td>${sale.client}</td>
+                    <td>$${sale.total}</td>
+                    <td><span class="badge badge-success">Pagado</span></td>
+                `;
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('statsUsers').textContent = users.length;
+            document.getElementById('statsQuotations').textContent = quotations.length;
+            document.getElementById('statsProducts').textContent = products.length;
+            
+            const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
+            document.getElementById('statsSales').textContent = `$${totalSales.toFixed(0)}`;
+        }
+
+        // Funciones de eliminación
+        function deleteUser(id) {
+            if (confirm('¿Eliminar este usuario?')) {
+                users = users.filter(user => user.id !== id);
+                saveToStorage('powertools_users', users);
+                updateUsersTable();
+                showAlert('Usuario eliminado', 'success');
+            }
+        }
+
+        function deleteExpense(id) {
+            if (confirm('¿Eliminar este gasto?')) {
+                expenses = expenses.filter(expense => expense.id !== id);
+                saveToStorage('powertools_expenses', expenses);
+                updateExpensesTable();
+                showAlert('Gasto eliminado', 'success');
+            }
+        }
+
+        function approveQuotation(id) {
+            const quotation = quotations.find(q => q.id === id);
+            if (quotation) {
+                quotation.status = 'approved';
+                saveToStorage('powertools_quotations', quotations);
+                updateQuotationsTable();
+                showAlert('Cotización aprobada', 'success');
+            }
+        }
+
+        function resetAllData() {
+            if (confirm('¿Resetear todos los datos?')) {
+                localStorage.clear();
+                users = [...defaultUsers];
+                quotations = [...defaultQuotations];
+                products = [...defaultProducts];
+                expenses = [...defaultExpenses];
+                sales = [...defaultSales];
+                updateAllTables();
+                showAlert('Datos reseteados', 'success');
+            }
+        }
+
+        function updateAllTables() {
+            updateUsersTable();
+            updateQuotationsTable();
+            updateProductsTable();
+            updateExpensesTable();
+            updateSalesTable();
+            updateStats();
+        }
+
+        function showQuickActions() {
+            const choice = prompt('Acciones rápidas:\n\n1. Nueva Venta\n2. Nueva Cotización\n3. Nuevo Producto\n4. Nuevo Gasto\n\nEscribe el número:');
+            
+            switch(choice) {
+                case '1': showModal('saleModal'); break;
+                case '2': showModal('quotationModal'); break;
+                case '3': showModal('productModal'); break;
+                case '4': showModal('expenseModal'); break;
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'info' ? 'success' : type}`;
+            alertDiv.innerHTML = `${type === 'success' ? '✅' : 'ℹ️'} ${message}`;
+            
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Cerrar modales al tocar fuera
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTables();
+            showAlert('PowerTools RD iniciado correctamente', 'success');
+        });
+    </script>
+</body>
+</html>

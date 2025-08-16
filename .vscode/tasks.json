@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"args": [
+				"start"
+			],
+			"command": "npm",
+			"group": "build",
+			"isBackground": true,
+			"label": "PowerTools: Start Development Server",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"type": "shell"
+		}
+	]
+}

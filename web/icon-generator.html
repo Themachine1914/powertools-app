@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Iconos PWA - PowerTools RD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .icon-preview canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .icon-preview p {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        .download-btn {
+            background: #FF6B35;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .download-btn:hover {
+            background: #e55a2b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Generador de Iconos PWA - PowerTools RD</h1>
+        <p>Este generador creará todos los iconos necesarios para la PWA basados en tu logo SVG.</p>
+        
+        <div id="iconPreviews"></div>
+        
+        <div style="margin-top: 2rem;">
+            <button class="download-btn" onclick="generateAllIcons()">📦 Generar Todos los Iconos</button>
+            <button class="download-btn" onclick="downloadAllIcons()">💾 Descargar Todos</button>
+        </div>
+        
+        <div id="downloadLinks"></div>
+    </div>
+
+    <script>
+        // Tamaños de iconos necesarios para PWA
+        const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const icons = {};
+
+        // Logo SVG de PowerTools (simplificado para iconos)
+        const logoSVG = `
+            <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#2E4057;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="toolGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Fondo con gradiente -->
+                <rect width="512" height="512" rx="80" fill="url(#bgGradient)"/>
+                
+                <!-- Taladro principal -->
+                <rect x="200" y="150" width="120" height="40" rx="20" fill="url(#toolGradient)" stroke="#333" stroke-width="3"/>
+                
+                <!-- Broca del taladro -->
+                <polygon points="320,160 380,170 320,180" fill="#C0C0C0" stroke="#333" stroke-width="2"/>
+                
+                <!-- Mango del taladro -->
+                <rect x="140" y="160" width="70" height="20" rx="10" fill="#444"/>
+                
+                <!-- Gatillo -->
+                <rect x="160" y="180" width="15" height="25" rx="5" fill="#666"/>
+                
+                <!-- Llave inglesa -->
+                <rect x="180" y="280" width="150" height="25" rx="12" fill="url(#toolGradient)" stroke="#333" stroke-width="3"/>
+                <rect x="310" y="270" width="30" height="45" rx="8" fill="url(#toolGradient)" stroke="#333" stroke-width="2"/>
+                
+                <!-- Destornillador -->
+                <rect x="220" y="350" width="80" height="15" rx="7" fill="#FF6B35"/>
+                <rect x="290" y="345" width="40" height="25" rx="3" fill="#333"/>
+                
+                <!-- Texto PowerTools (simplificado) -->
+                <text x="256" y="450" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-weight="bold" font-size="32">PT</text>
+                <text x="256" y="480" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16">RD</text>
+            </svg>
+        `;
+
+        function generateIcon(size) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = size;
+                canvas.height = size;
+
+                const img = new Image();
+                const svgBlob = new Blob([logoSVG], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0, size, size);
+                    URL.revokeObjectURL(url);
+                    
+                    canvas.toBlob((blob) => {
+                        icons[size] = {
+                            canvas: canvas,
+                            blob: blob,
+                            url: URL.createObjectURL(blob)
+                        };
+                        resolve(canvas);
+                    }, 'image/png');
+                };
+
+                img.src = url;
+            });
+        }
+
+        async function generateAllIcons() {
+            const previewContainer = document.getElementById('iconPreviews');
+            previewContainer.innerHTML = '<p>⏳ Generando iconos...</p>';
+
+            for (const size of iconSizes) {
+                try {
+                    const canvas = await generateIcon(size);
+                    
+                    const preview = document.createElement('div');
+                    preview.className = 'icon-preview';
+                    
+                    const displayCanvas = canvas.cloneNode(true);
+                    const displaySize = Math.min(size, 128);
+                    displayCanvas.style.width = displaySize + 'px';
+                    displayCanvas.style.height = displaySize + 'px';
+                    
+                    const label = document.createElement('p');
+                    label.textContent = `${size}x${size}px`;
+                    
+                    preview.appendChild(displayCanvas);
+                    preview.appendChild(label);
+                    previewContainer.appendChild(preview);
+                } catch (error) {
+                    console.error(`Error generando icono ${size}x${size}:`, error);
+                }
+            }
+
+            showDownloadLinks();
+        }
+
+        function showDownloadLinks() {
+            const container = document.getElementById('downloadLinks');
+            container.innerHTML = '<h3>📁 Enlaces de Descarga Individual:</h3>';
+
+            iconSizes.forEach(size => {
+                if (icons[size]) {
+                    const link = document.createElement('a');
+                    link.href = icons[size].url;
+                    link.download = `icon-${size}x${size}.png`;
+                    link.textContent = `Descargar ${size}x${size}px`;
+                    link.className = 'download-btn';
+                    link.style.display = 'inline-block';
+                    link.style.margin = '5px';
+                    container.appendChild(link);
+                }
+            });
+        }
+
+        function downloadAllIcons() {
+            iconSizes.forEach(size => {
+                if (icons[size]) {
+                    const link = document.createElement('a');
+                    link.href = icons[size].url;
+                    link.download = `icon-${size}x${size}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Pequeña pausa entre descargas
+                    setTimeout(() => {}, 200);
+                }
+            });
+        }
+
+        // Generar iconos automáticamente al cargar
+        window.addEventListener('load', () => {
+            setTimeout(generateAllIcons, 500);
+        });
+    </script>
+</body>
+</html>

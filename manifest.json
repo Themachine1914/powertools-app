@@ -1,0 +1,50 @@
+{
+  "name": "PowerTools RD - Sistema de Gestión",
+  "short_name": "PowerTools",
+  "description": "Sistema completo de gestión empresarial para PowerTools RD",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#FF6B35",
+  "background_color": "#FF6B35",
+  "lang": "es",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/assets/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/assets/screenshot-mobile.png",
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "features": [
+    "Gestión de inventario",
+    "Sistema de cotizaciones",
+    "Control de gastos",
+    "Registro de ventas",
+    "Dashboard con métricas",
+    "Funciona offline"
+  ],
+  "prefer_related_applications": false
+}
