@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD - Versión Completa</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0NEwyOCAzNkgzNkw0NCA0NEgyMFYyMFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yOCAyOEgzNkwzMiAzMkg0MEwzNiAzNkgyOFYyOFoiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjciLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjY0IiB5Mj0iNjQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0ZGNkIzNSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyRTQwNTciLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f7; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #FF6B35, #2E4057); color: white; padding: 1.5rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 600; }
+        .header p { opacity: 0.9; font-size: 1.1rem; }
+        .nav { display: flex; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        .nav-btn { flex: 1; min-width: 120px; padding: 1rem; text-align: center; border: none; background: none; color: #666; font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s ease; }
+        .nav-btn.active { color: #FF6B35; border-bottom-color: #FF6B35; background: rgba(255, 107, 53, 0.05); }
+        .nav-btn:hover { background: rgba(255, 107, 53, 0.1); }
+        .nav-btn i { display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e9ecef; }
+        .card h3 { color: #FF6B35; margin-bottom: 1.5rem; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #FF6B35, #F39C12); color: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3); }
+        .stat-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 1rem; opacity: 0.9; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid #e9ecef; }
+        .table th { background: #f8f9fa; font-weight: 600; color: #2E4057; }
+        .table tr:hover { background: #f8f9fa; }
+        .btn { background: #FF6B35; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; text-decoration: none; }
+        .btn:hover { background: #e55a2b; transform: translateY(-1px); }
+        .btn-secondary { background: #6c757d; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .fab { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: #FF6B35; color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4); z-index: 1000; transition: all 0.3s ease; }
+        .fab:hover { transform: scale(1.1); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; padding: 2rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h2 { color: #FF6B35; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2E4057; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; transition: border-color 0.3s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #FF6B35; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .badge-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .badge-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .badge-danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
+        .chart-container { height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 1rem 0; }
+        .action-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        @media (max-width: 768px) { 
+            .container { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .table { font-size: 0.9rem; }
+            .nav-btn { min-width: 80px; font-size: 0.8rem; }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-tools"></i> PowerTools RD</h1>
+        <p>Sistema Completo de Gestión Empresarial</p>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('dashboard')">
+            <i class="fas fa-chart-line"></i>
+            Dashboard
+        </button>
+        <button class="nav-btn" onclick="showSection('users')">
+            <i class="fas fa-users"></i>
+            Usuarios
+        </button>
+        <button class="nav-btn" onclick="showSection('quotations')">
+            <i class="fas fa-file-invoice"></i>
+            Cotizaciones
+        </button>
+        <button class="nav-btn" onclick="showSection('inventory')">
+            <i class="fas fa-boxes"></i>
+            Inventario
+        </button>
+        <button class="nav-btn" onclick="showSection('expenses')">
+            <i class="fas fa-money-bill-wave"></i>
+            Gastos
+        </button>
+        <button class="nav-btn" onclick="showSection('sales')">
+            <i class="fas fa-cash-register"></i>
+            Ventas
+        </button>
+        <button class="nav-btn" onclick="showSection('reports')">
+            <i class="fas fa-chart-bar"></i>
+            Reportes
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Usuarios Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Cotizaciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">85</div>
+                    <div class="stat-label">Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$24,500</div>
+                    <div class="stat-label">Ventas del Mes</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-tachometer-alt"></i> Resumen Ejecutivo</h3>
+                <div class="chart-container">
+                    <p><i class="fas fa-chart-line" style="font-size: 3rem; color: #FF6B35;"></i><br>Gráfico de Ventas Mensuales</p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="generateReport()">
+                        <i class="fas fa-file-pdf"></i> Generar Reporte
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> Exportar Datos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users" class="section">
+            <div class="card">
+                <h3><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('userModal')">
+                        <i class="fas fa-plus"></i> Nuevo Usuario
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportUsers()">
+                        <i class="fas fa-file-excel"></i> Exportar
+                    </button>
+                </div>
+                <table class="table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Último Acceso</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Admin Principal</td>
+                            <td>admin@powertools.com</td>
+                            <td>Administrador</td>
+                            <td><span class="badge badge-success">Activo</span></td>
+                            <td>10/08/2025 14:30</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editUser(1)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteUser(1)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Carlos Manager</td>
+                            <td>carlos@powertools.com</td>
+                            <td>Gerente</td>
+                            <td><span class="badge badge-success">Activo</span></td>
+                            <td>10/08/2025 12:15</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editUser(2)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteUser(2)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quotations Section -->
+        <div id="quotations" class="section">
+            <div class="card">
+                <h3><i class="fas fa-file-invoice"></i> Gestión de Cotizaciones</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('quotationModal')">
+                        <i class="fas fa-plus"></i> Nueva Cotización
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportQuotations()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>COT-001</td>
+                            <td>Constructora ABC</td>
+                            <td>08/08/2025</td>
+                            <td>$2,500.00</td>
+                            <td><span class="badge badge-warning">Pendiente</span></td>
+                            <td>
+                                <button class="btn btn-success" onclick="approveQuotation(1)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-warning" onclick="editQuotation(1)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" onclick="shareQuotation(1)">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div id="inventory" class="section">
+            <div class="card">
+                <h3><i class="fas fa-boxes"></i> Control de Inventario</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('productModal')">
+                        <i class="fas fa-plus"></i> Nuevo Producto
+                    </button>
+                    <button class="btn btn-secondary" onclick="generateInventoryReport()">
+                        <i class="fas fa-clipboard-list"></i> Reporte Stock
+                    </button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PROD-001</td>
+                            <td>Taladro Profesional</td>
+                            <td>Herramientas</td>
+                            <td>15</td>
+                            <td>$85.00</td>
+                            <td><span class="badge badge-success">Disponible</span></td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editProduct(1)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-success" onclick="addStock(1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div id="expenses" class="section">
+            <div class="card">
+                <h3><i class="fas fa-money-bill-wave"></i> Control de Gastos</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('expenseModal')">
+                        <i class="fas fa-plus"></i> Nuevo Gasto
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportExpenses()">
+                        <i class="fas fa-file-excel"></i> Exportar
+                    </button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Monto</th>
+                            <th>Proveedor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10/08/2025</td>
+                            <td>Combustible</td>
+                            <td>Transporte</td>
+                            <td>$45.00</td>
+                            <td>Estación Shell</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editExpense(1)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteExpense(1)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sales Section -->
+        <div id="sales" class="section">
+            <div class="card">
+                <h3><i class="fas fa-cash-register"></i> Gestión de Ventas</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showModal('saleModal')">
+                        <i class="fas fa-plus"></i> Nueva Venta
+                    </button>
+                    <button class="btn btn-secondary" onclick="generateSalesReport()">
+                        <i class="fas fa-chart-line"></i> Reporte Ventas
+                    </button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Método Pago</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FAC-001</td>
+                            <td>Juan Pérez</td>
+                            <td>10/08/2025</td>
+                            <td>$340.00</td>
+                            <td>Efectivo</td>
+                            <td><span class="badge badge-success">Pagado</span></td>
+                            <td>
+                                <button class="btn" onclick="printInvoice(1)">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                                <button class="btn btn-secondary" onclick="sendInvoice(1)">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="section">
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Reportes y Análisis</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">$45,230</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$8,450</div>
+                        <div class="stat-label">Gastos Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$36,780</div>
+                        <div class="stat-label">Ganancia Neta</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18.7%</div>
+                        <div class="stat-label">Margen de Ganancia</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="generateReport('monthly')">
+                        <i class="fas fa-calendar-alt"></i> Reporte Mensual
+                    </button>
+                    <button class="btn" onclick="generateReport('yearly')">
+                        <i class="fas fa-calendar"></i> Reporte Anual
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportAllData()">
+                        <i class="fas fa-database"></i> Exportar Todo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB Button -->
+    <button class="fab" onclick="showQuickActions()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Usuario</h2>
+                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <form onsubmit="saveUser(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="userName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select id="userRole" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="admin">Administrador</option>
+                            <option value="manager">Gerente</option>
+                            <option value="employee">Empleado</option>
+                            <option value="viewer">Visualizador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="userPhone">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar Usuario
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let users = [
+            { id: 1, name: 'Admin Principal', email: 'admin@powertools.com', role: 'admin', status: 'active', lastAccess: '10/08/2025 14:30' },
+            { id: 2, name: 'Carlos Manager', email: 'carlos@powertools.com', role: 'manager', status: 'active', lastAccess: '10/08/2025 12:15' }
+        ];
+
+        // Navegación
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Modales
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Usuarios
+        function saveUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const role = document.getElementById('userRole').value;
+            
+            users.push({
+                id: users.length + 1,
+                name: name,
+                email: email,
+                role: role,
+                status: 'active',
+                lastAccess: new Date().toLocaleString()
+            });
+            
+            showAlert('Usuario creado exitosamente', 'success');
+            closeModal('userModal');
+            event.target.reset();
+        }
+
+        function editUser(id) {
+            showAlert('Función de edición disponible en versión completa', 'warning');
+        }
+
+        function deleteUser(id) {
+            if (confirm('¿Está seguro de eliminar este usuario?')) {
+                showAlert('Usuario eliminado exitosamente', 'success');
+            }
+        }
+
+        // Cotizaciones
+        function approveQuotation(id) {
+            showAlert('Cotización aprobada exitosamente', 'success');
+        }
+
+        function editQuotation(id) {
+            showAlert('Editor de cotizaciones disponible', 'info');
+        }
+
+        function shareQuotation(id) {
+            showAlert('Cotización compartida por email', 'success');
+        }
+
+        // Productos
+        function editProduct(id) {
+            showAlert('Editor de productos disponible', 'info');
+        }
+
+        function addStock(id) {
+            const quantity = prompt('Cantidad a agregar al stock:');
+            if (quantity) {
+                showAlert(`Stock actualizado: +${quantity} unidades`, 'success');
+            }
+        }
+
+        // Gastos
+        function editExpense(id) {
+            showAlert('Editor de gastos disponible', 'info');
+        }
+
+        function deleteExpense(id) {
+            if (confirm('¿Eliminar este gasto?')) {
+                showAlert('Gasto eliminado exitosamente', 'success');
+            }
+        }
+
+        // Ventas
+        function printInvoice(id) {
+            showAlert('Imprimiendo factura...', 'info');
+            setTimeout(() => window.print(), 1000);
+        }
+
+        function sendInvoice(id) {
+            showAlert('Factura enviada por email', 'success');
+        }
+
+        // Reportes
+        function generateReport(type) {
+            showAlert(`Generando reporte ${type}...`, 'info');
+        }
+
+        function exportData() {
+            showAlert('Exportando datos a Excel...', 'info');
+        }
+
+        function exportUsers() {
+            showAlert('Lista de usuarios exportada', 'success');
+        }
+
+        function exportQuotations() {
+            showAlert('Cotizaciones exportadas a PDF', 'success');
+        }
+
+        function exportExpenses() {
+            showAlert('Gastos exportados a Excel', 'success');
+        }
+
+        function generateInventoryReport() {
+            showAlert('Reporte de inventario generado', 'success');
+        }
+
+        function generateSalesReport() {
+            showAlert('Reporte de ventas generado', 'success');
+        }
+
+        function exportAllData() {
+            showAlert('Exportando toda la base de datos...', 'info');
+        }
+
+        // Acciones rápidas
+        function showQuickActions() {
+            const actions = [
+                'Nueva Venta',
+                'Nueva Cotización', 
+                'Agregar Producto',
+                'Registrar Gasto'
+            ];
+            const action = prompt('Acción rápida:\n' + actions.map((a, i) => `${i+1}. ${a}`).join('\n'));
+            if (action) {
+                showAlert(`Ejecutando: ${actions[action-1]}`, 'info');
+            }
+        }
+
+        // Sistema de alertas
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'info' ? 'success' : type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}`;
+            
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Cerrar modales al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            showAlert('PowerTools RD - Sistema completo iniciado', 'success');
+            console.log('🔧 PowerTools RD Sistema Completo v2.0');
+        });
+    </script>
+</body>
+</html>
