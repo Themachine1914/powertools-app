@@ -56,6 +56,18 @@
         .alert-success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
         .chart-container { height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 1rem 0; }
         .action-buttons { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        
+        /* Login Screen Styles */
+        .login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #FF6B35, #2E4057); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+        .login-container { background: white; border-radius: 20px; padding: 3rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+        .login-header h1 { color: #FF6B35; font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .login-header p { color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
+        .login-form h2 { color: #2E4057; margin-bottom: 2rem; font-size: 1.5rem; }
+        .login-btn { width: 100%; padding: 1rem; font-size: 1.1rem; margin: 1.5rem 0; }
+        .login-note { color: #666; font-size: 0.9rem; margin-top: 1rem; }
+        .user-info { position: absolute; top: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 1rem; }
+        .user-info span { color: rgba(255,255,255,0.9); font-weight: 500; }
+        
         @media (max-width: 768px) { 
             .container { padding: 1rem; }
             .stats-grid { grid-template-columns: 1fr; }
@@ -67,10 +79,53 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <h1><i class="fas fa-tools"></i> PowerTools RD</h1>
-        <p>Sistema Completo de Gestión Empresarial</p>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-tools"></i> PowerTools RD</h1>
+                <p>Sistema Completo de Gestión Empresarial</p>
+            </div>
+            <div class="login-form">
+                <h2>Identificarse para Continuar</h2>
+                <div class="form-group">
+                    <label for="loginUserName">Tu Nombre Completo</label>
+                    <input type="text" id="loginUserName" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginUserRole">Tu Rol en la Empresa</label>
+                    <select id="loginUserRole" required>
+                        <option value="">Selecciona tu rol...</option>
+                        <option value="Propietario">Propietario</option>
+                        <option value="Gerente">Gerente</option>
+                        <option value="Vendedor">Vendedor</option>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Cliente">Cliente</option>
+                    </select>
+                </div>
+                <button class="btn login-btn" onclick="loginUser()">
+                    <i class="fas fa-sign-in-alt"></i> Entrar a PowerTools
+                </button>
+                <p class="login-note">
+                    <i class="fas fa-info-circle"></i> 
+                    Tu información se guarda localmente en este dispositivo
+                </p>
+            </div>
+        </div>
     </div>
+
+    <!-- Main App (Hidden initially) -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <div class="header">
+            <h1><i class="fas fa-tools"></i> PowerTools RD</h1>
+            <p>Sistema Completo de Gestión Empresarial</p>
+            <div class="user-info">
+                <span id="welcomeMessage">Bienvenido, Usuario</span>
+                <button class="btn btn-secondary" onclick="logoutUser()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
 
     <div class="nav">
         <button class="nav-btn active" onclick="showSection('dashboard')">
@@ -471,13 +526,127 @@
             </form>
         </div>
     </div>
+    
+    <!-- Close Main App Container -->
+    </div>
 
     <script>
         // Variables globales
+        let currentUser = null;
         let users = [
             { id: 1, name: 'Admin Principal', email: 'admin@powertools.com', role: 'admin', status: 'active', lastAccess: '10/08/2025 14:30' },
             { id: 2, name: 'Carlos Manager', email: 'carlos@powertools.com', role: 'manager', status: 'active', lastAccess: '10/08/2025 12:15' }
         ];
+
+        // Sistema de Login
+        function loginUser() {
+            const userName = document.getElementById('loginUserName').value.trim();
+            const userRole = document.getElementById('loginUserRole').value;
+            
+            if (!userName || !userRole) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            // Crear o encontrar usuario
+            const existingUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+            
+            if (existingUser) {
+                currentUser = existingUser;
+                // Actualizar último acceso
+                currentUser.lastAccess = new Date().toLocaleString('es-DO');
+            } else {
+                // Crear nuevo usuario
+                currentUser = {
+                    id: users.length + 1,
+                    name: userName,
+                    email: userName.toLowerCase().replace(/\s+/g, '.') + '@powertools.com',
+                    role: userRole,
+                    status: 'active',
+                    lastAccess: new Date().toLocaleString('es-DO')
+                };
+                users.push(currentUser);
+            }
+            
+            // Guardar en localStorage
+            localStorage.setItem('powertools_current_user', JSON.stringify(currentUser));
+            localStorage.setItem('powertools_users', JSON.stringify(users));
+            
+            // Mostrar app principal
+            showMainApp();
+        }
+        
+        function showMainApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            // Personalizar saludo
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            welcomeMsg.textContent = `Bienvenido, ${currentUser.name}`;
+            
+            // Actualizar tabla de usuarios
+            updateUsersTable();
+            
+            console.log(`👤 Usuario conectado: ${currentUser.name} (${currentUser.role})`);
+        }
+        
+        function logoutUser() {
+            if (confirm('¿Estás seguro que deseas salir de PowerTools?')) {
+                currentUser = null;
+                localStorage.removeItem('powertools_current_user');
+                
+                // Mostrar pantalla de login
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+                
+                // Limpiar formulario
+                document.getElementById('loginUserName').value = '';
+                document.getElementById('loginUserRole').value = '';
+                
+                console.log('👋 Usuario desconectado');
+            }
+        }
+        
+        function checkExistingLogin() {
+            const savedUser = localStorage.getItem('powertools_current_user');
+            const savedUsers = localStorage.getItem('powertools_users');
+            
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            }
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+            }
+        }
+        
+        function updateUsersTable() {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                    <td>${user.lastAccess}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${user.id !== currentUser.id ? `
+                        <button class="btn btn-danger" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
         // Navegación
         function showSection(sectionName) {
@@ -642,7 +811,16 @@
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            showAlert('PowerTools RD - Sistema completo iniciado', 'success');
+            // Verificar si hay usuario logueado
+            checkExistingLogin();
+            
+            // Si no hay usuario logueado, el sistema mostrará automáticamente la pantalla de login
+            if (!currentUser) {
+                console.log('🔐 Mostrando pantalla de login');
+            } else {
+                showAlert(`Bienvenido de nuevo, ${currentUser.name}`, 'success');
+            }
+            
             console.log('🔧 PowerTools RD Sistema Completo v2.0');
         });
     </script>
