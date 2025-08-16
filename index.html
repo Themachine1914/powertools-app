@@ -2381,10 +2381,6 @@ ${categoryReport}
             showAlert('Editor de cotizaciones disponible', 'info');
         }
 
-        function shareQuotation(id) {
-            showAlert('Cotización compartida por email', 'success');
-        }
-
         // Productos
         function editProduct(id) {
             showAlert('Editor de productos disponible', 'info');
@@ -3033,11 +3029,16 @@ ${categoryReport}
 
         // Compartir cotización por WhatsApp o Email
         function shareQuotation(quotationId) {
+            console.log('shareQuotation llamado con ID:', quotationId);
+            
             const quotation = quotations.find(q => q.id === quotationId);
             if (!quotation) {
+                console.error('Cotización no encontrada:', quotationId);
                 showAlert('❌ Cotización no encontrada', 'error');
                 return;
             }
+            
+            console.log('Cotización encontrada:', quotation);
             
             const message = `🔧 *PowerTools RD - Cotización ${quotation.number}*\n\n` +
                 `📋 Cliente: ${quotation.clientName}\n` +
@@ -3066,6 +3067,7 @@ ${categoryReport}
                 </div>
             `;
             
+            console.log('Mostrando modal de compartir');
             showCustomModal('Compartir Cotización', shareOptions);
         }
 
@@ -3105,13 +3107,26 @@ ${categoryReport}
 
         // Descargar cotización como PDF
         function downloadQuotationPDF(quotationId) {
+            console.log('downloadQuotationPDF llamado con ID:', quotationId);
+            
             const quotation = quotations.find(q => q.id === quotationId);
             if (!quotation) {
+                console.error('Cotización no encontrada:', quotationId);
                 showAlert('❌ Cotización no encontrada', 'error');
                 return;
             }
             
+            console.log('Cotización encontrada:', quotation);
             showAlert('📄 Generando PDF...', 'info');
+            
+            // Verificar que jsPDF esté disponible
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF no está disponible');
+                showAlert('❌ Error: Librería de PDF no disponible. Recargue la página.', 'error');
+                return;
+            }
+            
+            console.log('jsPDF disponible, generando PDF...');
             
             try {
                 const { jsPDF } = window.jspdf;
@@ -3284,6 +3299,12 @@ ${categoryReport}
             }
             
             showAlert('📄 Generando reporte de cotizaciones...', 'info');
+            
+            // Verificar que jsPDF esté disponible
+            if (typeof window.jspdf === 'undefined') {
+                showAlert('❌ Error: Librería de PDF no disponible. Recargue la página.', 'error');
+                return;
+            }
             
             try {
                 const { jsPDF } = window.jspdf;
@@ -3464,14 +3485,6 @@ ${categoryReport}
             updateQuotationProductsDisplay();
             calculateQuotationTotals();
             showModal('quotationModal');
-        }
-
-        function shareQuotation(quotationId) {
-            const quotation = quotations.find(q => q.id === quotationId);
-            if (quotation) {
-                // Simular compartir cotización
-                showAlert(`📤 Compartiendo cotización ${quotation.number} con ${quotation.clientName}`, 'info');
-            }
         }
 
         // Ocultar resultados de búsqueda al hacer clic fuera
