@@ -72,6 +72,44 @@
         .admin-login { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #eee; }
         .admin-login h3 { color: #FF6B35; margin-bottom: 1rem; }
         
+        /* Inventory Styles */
+        .inventory-controls { margin-bottom: 2rem; }
+        .search-filters { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+        .search-filters input, .search-filters select { flex: 1; min-width: 200px; }
+        .view-toggle { margin-bottom: 1rem; }
+        .view-toggle .btn { margin-right: 0.5rem; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .product-card { background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 1.5rem; transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .product-image { width: 100%; height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; overflow: hidden; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-image .no-image { color: #ccc; font-size: 3rem; }
+        .product-info h4 { color: #2E4057; margin-bottom: 0.5rem; }
+        .product-code { color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .product-prices { display: flex; justify-content: space-between; margin: 1rem 0; }
+        .price { font-weight: bold; }
+        .buy-price { color: #dc3545; }
+        .sell-price { color: #28a745; }
+        .stock-info { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .stock-badge { padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
+        .stock-high { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .stock-medium { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .stock-low { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .stock-out { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
+        
+        /* Photo Upload Styles */
+        .photo-upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 1rem; text-align: center; }
+        .photo-preview { cursor: pointer; }
+        .photo-placeholder { padding: 2rem; color: #666; }
+        .photo-placeholder i { font-size: 3rem; color: #ccc; margin-bottom: 1rem; }
+        .photo-placeholder p { margin-bottom: 0.5rem; font-weight: 600; }
+        .photo-placeholder small { color: #999; }
+        #photoPreview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-bottom: 1rem; }
+        .photo-actions { margin-top: 1rem; }
+        .photo-actions .btn { margin: 0 0.25rem; }
+        .table .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+        .table .no-thumb { width: 50px; height: 50px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ccc; }
+        
         @media (max-width: 768px) { 
             .container { padding: 1rem; }
             .stats-grid { grid-template-columns: 1fr; }
@@ -393,46 +431,80 @@
         <!-- Inventory Section -->
         <div id="inventory" class="section">
             <div class="card">
-                <h3><i class="fas fa-boxes"></i> Control de Inventario</h3>
-                <div class="action-buttons">
-                    <button class="btn" onclick="showModal('productModal')">
-                        <i class="fas fa-plus"></i> Nuevo Producto
-                    </button>
-                    <button class="btn btn-secondary" onclick="generateInventoryReport()">
-                        <i class="fas fa-clipboard-list"></i> Reporte Stock
-                    </button>
+                <h3><i class="fas fa-boxes"></i> Gestión de Inventario</h3>
+                
+                <!-- Filtros y búsqueda -->
+                <div class="inventory-controls">
+                    <div class="search-filters">
+                        <input type="text" id="productSearch" placeholder="Buscar productos..." onkeyup="filterProducts()">
+                        <select id="categoryFilter" onchange="filterProducts()">
+                            <option value="">Todas las categorías</option>
+                            <option value="Herramientas Eléctricas">Herramientas Eléctricas</option>
+                            <option value="Herramientas Manuales">Herramientas Manuales</option>
+                            <option value="Construcción">Construcción</option>
+                            <option value="Jardinería">Jardinería</option>
+                            <option value="Automotriz">Automotriz</option>
+                            <option value="Accesorios">Accesorios</option>
+                        </select>
+                        <select id="stockFilter" onchange="filterProducts()">
+                            <option value="">Todo el stock</option>
+                            <option value="low">Stock bajo (< 5)</option>
+                            <option value="medium">Stock medio (5-20)</option>
+                            <option value="high">Stock alto (> 20)</option>
+                            <option value="out">Agotado</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="showModal('productModal')">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateInventoryReport()">
+                            <i class="fas fa-clipboard-list"></i> Reporte Stock
+                        </button>
+                        <button class="btn btn-warning" onclick="showLowStockAlert()">
+                            <i class="fas fa-exclamation-triangle"></i> Stock Bajo
+                        </button>
+                    </div>
                 </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Producto</th>
-                            <th>Categoría</th>
-                            <th>Stock</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>PROD-001</td>
-                            <td>Taladro Profesional</td>
-                            <td>Herramientas</td>
-                            <td>15</td>
-                            <td>$85.00</td>
-                            <td><span class="badge badge-success">Disponible</span></td>
-                            <td>
-                                <button class="btn btn-warning" onclick="editProduct(1)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-success" onclick="addStock(1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+                <!-- Vista de productos -->
+                <div class="inventory-view">
+                    <div class="view-toggle">
+                        <button class="btn btn-secondary" onclick="toggleView('grid')" id="gridViewBtn">
+                            <i class="fas fa-th"></i> Vista Cuadrícula
+                        </button>
+                        <button class="btn btn-secondary active" onclick="toggleView('table')" id="tableViewBtn">
+                            <i class="fas fa-list"></i> Vista Tabla
+                        </button>
+                    </div>
+
+                    <!-- Vista en tabla -->
+                    <div id="tableView" class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Precio Compra</th>
+                                    <th>Precio Venta</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Los productos se llenan dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vista en cuadrícula -->
+                    <div id="gridView" class="products-grid" style="display: none;">
+                        <!-- Los productos se llenan dinámicamente -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -614,6 +686,112 @@
             </form>
         </div>
     </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-box"></i> <span id="productModalTitle">Agregar Producto</span></h2>
+                <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            </div>
+            <form onsubmit="saveProduct(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Código del Producto</label>
+                        <input type="text" id="productCode" required placeholder="Ej: PROD-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" id="productName" required placeholder="Ej: Taladro Bosch">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="productDescription" rows="3" placeholder="Describe las características del producto..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="productCategory" required>
+                            <option value="">Seleccionar categoría...</option>
+                            <option value="Herramientas Eléctricas">Herramientas Eléctricas</option>
+                            <option value="Herramientas Manuales">Herramientas Manuales</option>
+                            <option value="Construcción">Construcción</option>
+                            <option value="Jardinería">Jardinería</option>
+                            <option value="Automotriz">Automotriz</option>
+                            <option value="Accesorios">Accesorios</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="productBrand" placeholder="Ej: Bosch, Makita, DeWalt">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock Inicial</label>
+                        <input type="number" id="productStock" required min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Mínimo</label>
+                        <input type="number" id="productMinStock" required min="1" value="5" placeholder="Alerta cuando sea menor a...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio de Compra (US$)</label>
+                        <input type="number" id="productBuyPrice" required min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio de Venta (US$)</label>
+                        <input type="number" id="productSellPrice" required min="0" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Sección de foto -->
+                <div class="form-group">
+                    <label><i class="fas fa-camera"></i> Foto del Producto</label>
+                    <div class="photo-upload-area">
+                        <input type="file" id="productPhoto" accept="image/*" onchange="previewProductPhoto()" style="display: none;">
+                        <div class="photo-preview" onclick="document.getElementById('productPhoto').click()">
+                            <img id="photoPreview" src="" alt="" style="display: none;">
+                            <div id="photoPlaceholder" class="photo-placeholder">
+                                <i class="fas fa-camera-retro"></i>
+                                <p>Haz clic para agregar foto</p>
+                                <small>JPG, PNG, máx. 5MB</small>
+                            </div>
+                        </div>
+                        <div class="photo-actions" id="photoActions" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="removeProductPhoto()">
+                                <i class="fas fa-trash"></i> Eliminar Foto
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="document.getElementById('productPhoto').click()">
+                                <i class="fas fa-sync"></i> Cambiar Foto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notas Adicionales</label>
+                    <textarea id="productNotes" rows="2" placeholder="Información adicional, proveedor, garantía, etc."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> <span id="saveButtonText">Guardar Producto</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Close Main App Container -->
     </div>
@@ -633,6 +811,60 @@
         ];
         
         const ADMIN_PASSWORD = 'powertools_master_2025'; // Contraseña maestra para crear usuarios
+
+        // Sistema de inventario
+        let products = [
+            {
+                id: 1,
+                code: 'PROD-001',
+                name: 'Taladro Inalámbrico Bosch',
+                description: 'Taladro profesional de 18V con batería de litio incluida',
+                category: 'Herramientas Eléctricas',
+                brand: 'Bosch',
+                stock: 15,
+                minStock: 5,
+                buyPrice: 85.00,
+                sellPrice: 125.00,
+                photo: null,
+                notes: 'Incluye maletín y cargador',
+                createdDate: '2025-08-16',
+                lastUpdated: '2025-08-16'
+            },
+            {
+                id: 2,
+                code: 'PROD-002',
+                name: 'Martillo de Carpintero',
+                description: 'Martillo profesional con mango de fibra de vidrio',
+                category: 'Herramientas Manuales',
+                brand: 'Stanley',
+                stock: 8,
+                minStock: 3,
+                buyPrice: 12.50,
+                sellPrice: 18.00,
+                photo: null,
+                notes: 'Peso: 450g',
+                createdDate: '2025-08-16',
+                lastUpdated: '2025-08-16'
+            },
+            {
+                id: 3,
+                code: 'PROD-003',
+                name: 'Sierra Circular Makita',
+                description: 'Sierra circular de 7-1/4" para cortes precisos',
+                category: 'Herramientas Eléctricas',
+                brand: 'Makita',
+                stock: 3,
+                minStock: 2,
+                buyPrice: 150.00,
+                sellPrice: 220.00,
+                photo: null,
+                notes: 'Potencia: 1800W',
+                createdDate: '2025-08-16',
+                lastUpdated: '2025-08-16'
+            }
+        ];
+        
+        let editingProductId = null;
 
         // Sistema de Autenticación
         function authenticateUser() {
@@ -855,6 +1087,369 @@
             link.setAttribute('download', 'powertools_usuarios.csv');
             link.click();
         }
+
+        // === SISTEMA DE INVENTARIO ===
+        
+        function initializeInventory() {
+            const savedProducts = localStorage.getItem('powertools_products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+            }
+            updateInventoryDisplay();
+        }
+        
+        function updateInventoryDisplay() {
+            updateInventoryTable();
+            updateInventoryGrid();
+        }
+        
+        function updateInventoryTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                const stockStatus = getStockStatus(product.stock, product.minStock);
+                const profit = ((product.sellPrice - product.buyPrice) / product.buyPrice * 100).toFixed(1);
+                
+                row.innerHTML = `
+                    <td>
+                        ${product.photo ? 
+                            `<img src="${product.photo}" alt="${product.name}" class="product-thumb">` :
+                            `<div class="no-thumb"><i class="fas fa-image"></i></div>`
+                        }
+                    </td>
+                    <td><strong>${product.code}</strong></td>
+                    <td>
+                        <div><strong>${product.name}</strong></div>
+                        <small class="text-muted">${product.brand || 'Sin marca'}</small>
+                    </td>
+                    <td><span class="badge badge-${getCategoryColor(product.category)}">${product.category}</span></td>
+                    <td>
+                        <span class="stock-badge stock-${stockStatus.class}">${product.stock}</span>
+                        ${product.stock <= product.minStock ? '<i class="fas fa-exclamation-triangle text-danger"></i>' : ''}
+                    </td>
+                    <td class="buy-price">$${product.buyPrice.toFixed(2)}</td>
+                    <td class="sell-price">$${product.sellPrice.toFixed(2)} <small>(+${profit}%)</small></td>
+                    <td><span class="badge badge-${stockStatus.class}">${stockStatus.text}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editProduct(${product.id})" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-success" onclick="adjustStock(${product.id})" title="Ajustar Stock">
+                            <i class="fas fa-boxes"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateInventoryGrid() {
+            const grid = document.getElementById('gridView');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            products.forEach(product => {
+                const stockStatus = getStockStatus(product.stock, product.minStock);
+                const profit = ((product.sellPrice - product.buyPrice) / product.buyPrice * 100).toFixed(1);
+                
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image">
+                        ${product.photo ? 
+                            `<img src="${product.photo}" alt="${product.name}">` :
+                            `<div class="no-image"><i class="fas fa-image"></i></div>`
+                        }
+                    </div>
+                    <div class="product-info">
+                        <div class="product-code">${product.code}</div>
+                        <h4>${product.name}</h4>
+                        <p class="text-muted">${product.brand || 'Sin marca'} • ${product.category}</p>
+                        <div class="product-prices">
+                            <div class="buy-price">Compra: $${product.buyPrice.toFixed(2)}</div>
+                            <div class="sell-price">Venta: $${product.sellPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="stock-info">
+                            <span class="stock-badge stock-${stockStatus.class}">Stock: ${product.stock}</span>
+                            ${product.stock <= product.minStock ? '<i class="fas fa-exclamation-triangle text-danger"></i>' : ''}
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-warning" onclick="editProduct(${product.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-success" onclick="adjustStock(${product.id})">
+                                <i class="fas fa-boxes"></i> Stock
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const productData = {
+                code: document.getElementById('productCode').value.trim(),
+                name: document.getElementById('productName').value.trim(),
+                description: document.getElementById('productDescription').value.trim(),
+                category: document.getElementById('productCategory').value,
+                brand: document.getElementById('productBrand').value.trim(),
+                stock: parseInt(document.getElementById('productStock').value),
+                minStock: parseInt(document.getElementById('productMinStock').value),
+                buyPrice: parseFloat(document.getElementById('productBuyPrice').value),
+                sellPrice: parseFloat(document.getElementById('productSellPrice').value),
+                photo: document.getElementById('photoPreview').src || null,
+                notes: document.getElementById('productNotes').value.trim()
+            };
+            
+            // Validar que el código no exista (excepto si estamos editando)
+            const existingProduct = products.find(p => p.code === productData.code && p.id !== editingProductId);
+            if (existingProduct) {
+                showAlert('El código del producto ya existe', 'error');
+                return;
+            }
+            
+            if (editingProductId) {
+                // Editar producto existente
+                const productIndex = products.findIndex(p => p.id === editingProductId);
+                if (productIndex !== -1) {
+                    products[productIndex] = {
+                        ...products[productIndex],
+                        ...productData,
+                        lastUpdated: new Date().toLocaleDateString('es-DO')
+                    };
+                    showAlert('Producto actualizado exitosamente', 'success');
+                }
+            } else {
+                // Crear nuevo producto
+                const newProduct = {
+                    id: products.length + 1,
+                    ...productData,
+                    createdDate: new Date().toLocaleDateString('es-DO'),
+                    lastUpdated: new Date().toLocaleDateString('es-DO')
+                };
+                products.push(newProduct);
+                showAlert('Producto agregado exitosamente', 'success');
+            }
+            
+            // Guardar en localStorage
+            localStorage.setItem('powertools_products', JSON.stringify(products));
+            
+            // Actualizar display y cerrar modal
+            updateInventoryDisplay();
+            closeModal('productModal');
+            clearProductForm();
+        }
+        
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            editingProductId = productId;
+            
+            // Llenar formulario
+            document.getElementById('productCode').value = product.code;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productBrand').value = product.brand || '';
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productMinStock').value = product.minStock;
+            document.getElementById('productBuyPrice').value = product.buyPrice;
+            document.getElementById('productSellPrice').value = product.sellPrice;
+            document.getElementById('productNotes').value = product.notes || '';
+            
+            // Mostrar foto si existe
+            if (product.photo) {
+                document.getElementById('photoPreview').src = product.photo;
+                document.getElementById('photoPreview').style.display = 'block';
+                document.getElementById('photoPlaceholder').style.display = 'none';
+                document.getElementById('photoActions').style.display = 'block';
+            }
+            
+            // Cambiar títulos
+            document.getElementById('productModalTitle').textContent = 'Editar Producto';
+            document.getElementById('saveButtonText').textContent = 'Actualizar Producto';
+            
+            showModal('productModal');
+        }
+        
+        function deleteProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (confirm(`¿Estás seguro que deseas eliminar "${product.name}"?`)) {
+                products = products.filter(p => p.id !== productId);
+                localStorage.setItem('powertools_products', JSON.stringify(products));
+                updateInventoryDisplay();
+                showAlert('Producto eliminado exitosamente', 'success');
+            }
+        }
+        
+        function adjustStock(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const newStock = prompt(`Stock actual de "${product.name}": ${product.stock}\n\nIngresa el nuevo stock:`, product.stock);
+            
+            if (newStock !== null && !isNaN(newStock) && newStock >= 0) {
+                product.stock = parseInt(newStock);
+                product.lastUpdated = new Date().toLocaleDateString('es-DO');
+                localStorage.setItem('powertools_products', JSON.stringify(products));
+                updateInventoryDisplay();
+                showAlert('Stock actualizado exitosamente', 'success');
+            }
+        }
+        
+        function clearProductForm() {
+            editingProductId = null;
+            document.getElementById('productCode').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productCategory').value = '';
+            document.getElementById('productBrand').value = '';
+            document.getElementById('productStock').value = '0';
+            document.getElementById('productMinStock').value = '5';
+            document.getElementById('productBuyPrice').value = '';
+            document.getElementById('productSellPrice').value = '';
+            document.getElementById('productNotes').value = '';
+            
+            // Resetear foto
+            removeProductPhoto();
+            
+            // Resetear títulos
+            document.getElementById('productModalTitle').textContent = 'Agregar Producto';
+            document.getElementById('saveButtonText').textContent = 'Guardar Producto';
+        }
+        
+        // Funciones de foto
+        function previewProductPhoto() {
+            const fileInput = document.getElementById('productPhoto');
+            const preview = document.getElementById('photoPreview');
+            const placeholder = document.getElementById('photoPlaceholder');
+            const actions = document.getElementById('photoActions');
+            
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                
+                // Validar tamaño (5MB máximo)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('La imagen es demasiado grande. Máximo 5MB.', 'error');
+                    return;
+                }
+                
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    showAlert('Por favor selecciona una imagen válida.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    actions.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removeProductPhoto() {
+            document.getElementById('productPhoto').value = '';
+            document.getElementById('photoPreview').src = '';
+            document.getElementById('photoPreview').style.display = 'none';
+            document.getElementById('photoPlaceholder').style.display = 'block';
+            document.getElementById('photoActions').style.display = 'none';
+        }
+        
+        // Funciones auxiliares
+        function getStockStatus(stock, minStock) {
+            if (stock === 0) return { class: 'out', text: 'Agotado' };
+            if (stock <= minStock) return { class: 'low', text: 'Stock Bajo' };
+            if (stock <= minStock * 2) return { class: 'medium', text: 'Stock Medio' };
+            return { class: 'high', text: 'Stock Alto' };
+        }
+        
+        function getCategoryColor(category) {
+            const colors = {
+                'Herramientas Eléctricas': 'primary',
+                'Herramientas Manuales': 'secondary',
+                'Construcción': 'warning',
+                'Jardinería': 'success',
+                'Automotriz': 'info',
+                'Accesorios': 'light'
+            };
+            return colors[category] || 'secondary';
+        }
+        
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            
+            // Aquí implementarías la lógica de filtrado
+            // Por ahora solo actualizamos la vista
+            updateInventoryDisplay();
+        }
+        
+        function toggleView(viewType) {
+            const gridView = document.getElementById('gridView');
+            const tableView = document.getElementById('tableView');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const tableBtn = document.getElementById('tableViewBtn');
+            
+            if (viewType === 'grid') {
+                gridView.style.display = 'block';
+                tableView.style.display = 'none';
+                gridBtn.classList.add('active');
+                tableBtn.classList.remove('active');
+            } else {
+                gridView.style.display = 'none';
+                tableView.style.display = 'block';
+                tableBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            }
+        }
+        
+        function showLowStockAlert() {
+            const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+            
+            if (lowStockProducts.length === 0) {
+                showAlert('¡Excelente! No hay productos con stock bajo.', 'success');
+                return;
+            }
+            
+            let message = `⚠️ ALERTA DE STOCK BAJO:\n\n`;
+            lowStockProducts.forEach(product => {
+                message += `• ${product.name} (${product.code}): ${product.stock} unidades\n`;
+            });
+            message += `\nTotal de productos afectados: ${lowStockProducts.length}`;
+            
+            alert(message);
+        }
+        
+        function generateInventoryReport() {
+            const totalProducts = products.length;
+            const totalValue = products.reduce((sum, p) => sum + (p.stock * p.sellPrice), 0);
+            const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
+            
+            showAlert(`📊 REPORTE DE INVENTARIO:
+• Total de productos: ${totalProducts}
+• Valor total del inventario: $${totalValue.toFixed(2)}
+• Productos con stock bajo: ${lowStockCount}
+• Última actualización: ${new Date().toLocaleString('es-DO')}`, 'info');
+        }
         
         function updateUsersTable() {
             const tbody = document.querySelector('#usersTable tbody');
@@ -893,6 +1488,10 @@
 
         // Modales
         function showModal(modalId) {
+            // Limpiar formulario de producto al abrir modal
+            if (modalId === 'productModal' && !editingProductId) {
+                clearProductForm();
+            }
             document.getElementById(modalId).classList.add('active');
         }
 
@@ -1048,6 +1647,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar si hay usuario logueado
             checkExistingLogin();
+            
+            // Inicializar inventario
+            initializeInventory();
             
             // Si no hay usuario logueado, el sistema mostrará automáticamente la pantalla de login
             if (!currentUser) {
