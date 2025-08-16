@@ -64,9 +64,13 @@
         .login-header p { color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
         .login-form h2 { color: #2E4057; margin-bottom: 2rem; font-size: 1.5rem; }
         .login-btn { width: 100%; padding: 1rem; font-size: 1.1rem; margin: 1.5rem 0; }
+        .login-options { margin: 1rem 0; }
+        .login-options .btn { width: 100%; margin: 0.5rem 0; }
         .login-note { color: #666; font-size: 0.9rem; margin-top: 1rem; }
         .user-info { position: absolute; top: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 1rem; }
         .user-info span { color: rgba(255,255,255,0.9); font-weight: 500; }
+        .admin-login { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #eee; }
+        .admin-login h3 { color: #FF6B35; margin-bottom: 1rem; }
         
         @media (max-width: 768px) { 
             .container { padding: 1rem; }
@@ -87,29 +91,113 @@
                 <p>Sistema Completo de Gestión Empresarial</p>
             </div>
             <div class="login-form">
-                <h2>Identificarse para Continuar</h2>
+                <h2>Iniciar Sesión en PowerTools</h2>
                 <div class="form-group">
-                    <label for="loginUserName">Tu Nombre Completo</label>
-                    <input type="text" id="loginUserName" placeholder="Ej: Juan Pérez" required>
+                    <label for="loginUsername">Nombre de Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="Ingresa tu usuario" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginUserRole">Tu Rol en la Empresa</label>
-                    <select id="loginUserRole" required>
-                        <option value="">Selecciona tu rol...</option>
-                        <option value="Propietario">Propietario</option>
-                        <option value="Gerente">Gerente</option>
-                        <option value="Vendedor">Vendedor</option>
-                        <option value="Empleado">Empleado</option>
-                        <option value="Cliente">Cliente</option>
-                    </select>
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña" required>
                 </div>
-                <button class="btn login-btn" onclick="loginUser()">
-                    <i class="fas fa-sign-in-alt"></i> Entrar a PowerTools
+                <button class="btn login-btn" onclick="authenticateUser()">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                 </button>
+                <div class="login-options">
+                    <button type="button" class="btn btn-secondary" onclick="showAdminPanel()">
+                        <i class="fas fa-user-cog"></i> Panel de Administrador
+                    </button>
+                </div>
                 <p class="login-note">
-                    <i class="fas fa-info-circle"></i> 
-                    Tu información se guarda localmente en este dispositivo
+                    <i class="fas fa-shield-alt"></i> 
+                    Acceso restringido - Solo usuarios autorizados
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminPanel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-cog"></i> Panel de Administrador</h2>
+                <button class="close-btn" onclick="closeModal('adminPanel')">&times;</button>
+            </div>
+            <div class="admin-login">
+                <h3>Acceso de Administrador</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Contraseña de Administrador</label>
+                    <input type="password" id="adminPassword" placeholder="Contraseña maestra" required>
+                </div>
+                <button class="btn" onclick="validateAdmin()">
+                    <i class="fas fa-unlock"></i> Acceder
+                </button>
+            </div>
+            <div id="adminControls" style="display: none;">
+                <h3>Gestión de Usuarios</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showCreateUserForm()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportUserCredentials()">
+                        <i class="fas fa-download"></i> Exportar Usuarios
+                    </button>
+                </div>
+                
+                <div id="createUserForm" style="display: none;">
+                    <h4>Crear Nuevo Usuario</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Completo</label>
+                            <input type="text" id="newUserFullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre de Usuario</label>
+                            <input type="text" id="newUsername" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <select id="newUserRole" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Propietario">Propietario</option>
+                                <option value="Gerente">Gerente</option>
+                                <option value="Vendedor">Vendedor</option>
+                                <option value="Empleado">Empleado</option>
+                                <option value="Cliente">Cliente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="createNewUser()">
+                            <i class="fas fa-save"></i> Crear Usuario
+                        </button>
+                        <button class="btn btn-secondary" onclick="cancelCreateUser()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="credentialsTable">
+                        <!-- Los usuarios se llenan dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
             </div>
         </div>
     </div>
@@ -537,43 +625,55 @@
             { id: 1, name: 'Admin Principal', email: 'admin@powertools.com', role: 'admin', status: 'active', lastAccess: '10/08/2025 14:30' },
             { id: 2, name: 'Carlos Manager', email: 'carlos@powertools.com', role: 'manager', status: 'active', lastAccess: '10/08/2025 12:15' }
         ];
+        
+        // Sistema de credenciales seguro
+        let userCredentials = [
+            { id: 1, fullName: 'Genesis Ortiz', username: 'genesis', password: 'admin123', role: 'Propietario', status: 'active', createdDate: '2025-08-16' },
+            { id: 2, fullName: 'PowerTools Admin', username: 'admin', password: 'powertools2025', role: 'Gerente', status: 'active', createdDate: '2025-08-16' }
+        ];
+        
+        const ADMIN_PASSWORD = 'powertools_master_2025'; // Contraseña maestra para crear usuarios
 
-        // Sistema de Login
-        function loginUser() {
-            const userName = document.getElementById('loginUserName').value.trim();
-            const userRole = document.getElementById('loginUserRole').value;
+        // Sistema de Autenticación
+        function authenticateUser() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
             
-            if (!userName || !userRole) {
-                alert('Por favor, completa todos los campos');
+            if (!username || !password) {
+                showAlert('Por favor, completa todos los campos', 'error');
                 return;
             }
             
-            // Crear o encontrar usuario
-            const existingUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+            // Buscar usuario en las credenciales
+            const userCred = userCredentials.find(u => 
+                u.username.toLowerCase() === username.toLowerCase() && 
+                u.password === password &&
+                u.status === 'active'
+            );
             
-            if (existingUser) {
-                currentUser = existingUser;
-                // Actualizar último acceso
-                currentUser.lastAccess = new Date().toLocaleString('es-DO');
-            } else {
-                // Crear nuevo usuario
+            if (userCred) {
+                // Crear sesión de usuario
                 currentUser = {
-                    id: users.length + 1,
-                    name: userName,
-                    email: userName.toLowerCase().replace(/\s+/g, '.') + '@powertools.com',
-                    role: userRole,
-                    status: 'active',
+                    id: userCred.id,
+                    name: userCred.fullName,
+                    username: userCred.username,
+                    role: userCred.role,
                     lastAccess: new Date().toLocaleString('es-DO')
                 };
-                users.push(currentUser);
+                
+                // Actualizar registro de acceso
+                userCred.lastAccess = currentUser.lastAccess;
+                
+                // Guardar en localStorage
+                localStorage.setItem('powertools_current_user', JSON.stringify(currentUser));
+                localStorage.setItem('powertools_credentials', JSON.stringify(userCredentials));
+                
+                showMainApp();
+                showAlert(`Bienvenido, ${currentUser.name}`, 'success');
+            } else {
+                showAlert('Usuario o contraseña incorrectos', 'error');
+                document.getElementById('loginPassword').value = '';
             }
-            
-            // Guardar en localStorage
-            localStorage.setItem('powertools_current_user', JSON.stringify(currentUser));
-            localStorage.setItem('powertools_users', JSON.stringify(users));
-            
-            // Mostrar app principal
-            showMainApp();
         }
         
         function showMainApp() {
@@ -582,16 +682,16 @@
             
             // Personalizar saludo
             const welcomeMsg = document.getElementById('welcomeMessage');
-            welcomeMsg.textContent = `Bienvenido, ${currentUser.name}`;
+            welcomeMsg.textContent = `Bienvenido, ${currentUser.name} (${currentUser.role})`;
             
             // Actualizar tabla de usuarios
             updateUsersTable();
             
-            console.log(`👤 Usuario conectado: ${currentUser.name} (${currentUser.role})`);
+            console.log(`👤 Usuario autenticado: ${currentUser.name} (${currentUser.username})`);
         }
         
         function logoutUser() {
-            if (confirm('¿Estás seguro que deseas salir de PowerTools?')) {
+            if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
                 currentUser = null;
                 localStorage.removeItem('powertools_current_user');
                 
@@ -600,25 +700,160 @@
                 document.getElementById('loginScreen').style.display = 'flex';
                 
                 // Limpiar formulario
-                document.getElementById('loginUserName').value = '';
-                document.getElementById('loginUserRole').value = '';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
                 
-                console.log('👋 Usuario desconectado');
+                console.log('👋 Sesión cerrada');
             }
         }
         
         function checkExistingLogin() {
             const savedUser = localStorage.getItem('powertools_current_user');
-            const savedUsers = localStorage.getItem('powertools_users');
+            const savedCredentials = localStorage.getItem('powertools_credentials');
             
-            if (savedUsers) {
-                users = JSON.parse(savedUsers);
+            if (savedCredentials) {
+                userCredentials = JSON.parse(savedCredentials);
             }
             
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 showMainApp();
             }
+        }
+
+        // Panel de Administración
+        function showAdminPanel() {
+            document.getElementById('adminPanel').classList.add('active');
+        }
+        
+        function validateAdmin() {
+            const adminPass = document.getElementById('adminPassword').value;
+            
+            if (adminPass === ADMIN_PASSWORD) {
+                document.querySelector('.admin-login').style.display = 'none';
+                document.getElementById('adminControls').style.display = 'block';
+                updateCredentialsTable();
+                showAlert('Acceso de administrador concedido', 'success');
+            } else {
+                showAlert('Contraseña de administrador incorrecta', 'error');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+        
+        function showCreateUserForm() {
+            document.getElementById('createUserForm').style.display = 'block';
+        }
+        
+        function cancelCreateUser() {
+            document.getElementById('createUserForm').style.display = 'none';
+            clearCreateUserForm();
+        }
+        
+        function clearCreateUserForm() {
+            document.getElementById('newUserFullName').value = '';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newUserRole').value = '';
+        }
+        
+        function createNewUser() {
+            const fullName = document.getElementById('newUserFullName').value.trim();
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            
+            if (!fullName || !username || !password || !role) {
+                showAlert('Por favor, completa todos los campos', 'error');
+                return;
+            }
+            
+            // Verificar que el username no exista
+            if (userCredentials.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+                showAlert('El nombre de usuario ya existe', 'error');
+                return;
+            }
+            
+            // Crear nuevo usuario
+            const newUser = {
+                id: userCredentials.length + 1,
+                fullName: fullName,
+                username: username,
+                password: password,
+                role: role,
+                status: 'active',
+                createdDate: new Date().toLocaleDateString('es-DO'),
+                lastAccess: 'Nunca'
+            };
+            
+            userCredentials.push(newUser);
+            localStorage.setItem('powertools_credentials', JSON.stringify(userCredentials));
+            
+            updateCredentialsTable();
+            cancelCreateUser();
+            showAlert(`Usuario "${username}" creado exitosamente`, 'success');
+        }
+        
+        function updateCredentialsTable() {
+            const tbody = document.getElementById('credentialsTable');
+            tbody.innerHTML = '';
+            
+            userCredentials.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.fullName}</td>
+                    <td>${user.username}</td>
+                    <td>${user.role}</td>
+                    <td><span class="badge badge-${user.status === 'active' ? 'success' : 'danger'}">${user.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="toggleUserStatus(${user.id})">
+                            <i class="fas fa-${user.status === 'active' ? 'lock' : 'unlock'}"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteUserCredential(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function toggleUserStatus(userId) {
+            const user = userCredentials.find(u => u.id === userId);
+            if (user) {
+                user.status = user.status === 'active' ? 'inactive' : 'active';
+                localStorage.setItem('powertools_credentials', JSON.stringify(userCredentials));
+                updateCredentialsTable();
+                showAlert(`Usuario ${user.status === 'active' ? 'activado' : 'desactivado'}`, 'success');
+            }
+        }
+        
+        function deleteUserCredential(userId) {
+            if (confirm('¿Estás seguro que deseas eliminar este usuario?')) {
+                userCredentials = userCredentials.filter(u => u.id !== userId);
+                localStorage.setItem('powertools_credentials', JSON.stringify(userCredentials));
+                updateCredentialsTable();
+                showAlert('Usuario eliminado exitosamente', 'success');
+            }
+        }
+        
+        function exportUserCredentials() {
+            const data = userCredentials.map(u => ({
+                'Nombre Completo': u.fullName,
+                'Usuario': u.username,
+                'Contraseña': u.password,
+                'Rol': u.role,
+                'Estado': u.status,
+                'Fecha Creación': u.createdDate
+            }));
+            
+            const csv = 'data:text/csv;charset=utf-8,' + 
+                Object.keys(data[0]).join(',') + '\n' +
+                data.map(row => Object.values(row).join(',')).join('\n');
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', encodeURI(csv));
+            link.setAttribute('download', 'powertools_usuarios.csv');
+            link.click();
         }
         
         function updateUsersTable() {
