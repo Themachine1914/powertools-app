@@ -132,6 +132,33 @@
         .loading { opacity: 0.6; pointer-events: none; }
         .loading::after { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #FF6B35; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        
+        /* Quotation Styles */
+        .form-section { margin-bottom: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #FF6B35; }
+        .form-section h3 { color: #FF6B35; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .product-search-container { position: relative; }
+        .product-search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; }
+        .product-search-item { padding: 0.75rem; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .product-search-item:hover { background: #f8f9fa; }
+        .product-search-item:last-child { border-bottom: none; }
+        .product-info { flex: 1; }
+        .product-name { font-weight: 600; color: #2E4057; }
+        .product-details { font-size: 0.9rem; color: #666; }
+        .product-price { font-weight: bold; color: #FF6B35; }
+        .quotation-products { margin-top: 1rem; }
+        .empty-products { text-align: center; padding: 2rem; color: #666; background: #f8f9fa; border-radius: 8px; }
+        .quotation-totals { background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #ddd; }
+        .totals-grid { display: grid; gap: 0.75rem; }
+        .total-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .total-item:last-child { border-bottom: none; }
+        .final-total { border-top: 2px solid #FF6B35; margin-top: 0.5rem; padding-top: 1rem; font-size: 1.1rem; }
+        .tax-option { margin-top: 1rem; text-align: center; }
+        .quantity-input { width: 80px; text-align: center; }
+        .discount-input { width: 70px; text-align: center; }
+        .quotation-status-pending { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .quotation-status-approved { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .quotation-status-rejected { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .quotation-status-expired { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
         .photo-upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 1rem; text-align: center; }
         .photo-preview { cursor: pointer; }
         .photo-placeholder { padding: 2rem; color: #666; }
@@ -530,7 +557,7 @@
                         <i class="fas fa-file-pdf"></i> Exportar PDF
                     </button>
                 </div>
-                <table class="table">
+                <table class="table" id="quotationsTable">
                     <thead>
                         <tr>
                             <th>Número</th>
@@ -541,27 +568,14 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>COT-001</td>
-                            <td>Constructora ABC</td>
-                            <td>08/08/2025</td>
-                            <td>$2,500.00</td>
-                            <td><span class="badge badge-warning">Pendiente</span></td>
-                            <td>
-                                <button class="btn btn-success" onclick="approveQuotation(1)">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-warning" onclick="editQuotation(1)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn" onclick="shareQuotation(1)">
-                                    <i class="fas fa-share"></i>
-                                </button>
-                            </td>
-                        </tr>
+                    <tbody id="quotationsTableBody">
+                        <!-- Las cotizaciones se cargan dinámicamente -->
                     </tbody>
                 </table>
+                
+                <div id="emptyQuotations" class="empty-products" style="display: none;">
+                    <p><i class="fas fa-info-circle"></i> No hay cotizaciones creadas. Crea tu primera cotización usando el botón "Nueva Cotización".</p>
+                </div>
             </div>
         </div>
 
@@ -781,6 +795,159 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Quotation Modal -->
+    <div id="quotationModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-invoice"></i> <span id="quotationModalTitle">Nueva Cotización</span></h2>
+                <button class="close-btn" onclick="closeModal('quotationModal')">&times;</button>
+            </div>
+            <form onsubmit="saveQuotation(event)" id="quotationForm">
+                <!-- Información del Cliente -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Información del Cliente</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientName">Nombre del Cliente *</label>
+                            <input type="text" id="clientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmail">Email</label>
+                            <input type="email" id="clientEmail">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientPhone">Teléfono</label>
+                            <input type="tel" id="clientPhone">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientCompany">Empresa</label>
+                            <input type="text" id="clientCompany">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientAddress">Dirección</label>
+                        <textarea id="clientAddress" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Información de la Cotización -->
+                <div class="form-section">
+                    <h3><i class="fas fa-file-alt"></i> Detalles de la Cotización</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quotationNumber">Número de Cotización</label>
+                            <input type="text" id="quotationNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="quotationDate">Fecha</label>
+                            <input type="date" id="quotationDate">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="validUntil">Válida Hasta</label>
+                            <input type="date" id="validUntil">
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentTerms">Términos de Pago</label>
+                            <select id="paymentTerms">
+                                <option value="inmediato">Pago Inmediato</option>
+                                <option value="15dias">15 días</option>
+                                <option value="30dias">30 días</option>
+                                <option value="45dias">45 días</option>
+                                <option value="60dias">60 días</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quotationNotes">Notas / Condiciones</label>
+                        <textarea id="quotationNotes" rows="2" placeholder="Condiciones especiales, garantías, etc."></textarea>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div class="form-section">
+                    <h3><i class="fas fa-boxes"></i> Productos</h3>
+                    <div class="product-search-section">
+                        <div class="form-group">
+                            <label for="productSearch">Buscar Producto</label>
+                            <div class="product-search-container">
+                                <input type="text" id="productSearchQuotation" placeholder="Buscar producto por nombre o código..." oninput="searchProductsForQuotation()">
+                                <div id="productSearchResults" class="product-search-results"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quotation-products">
+                        <table class="table" id="quotationProductsTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Código</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Descuento %</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quotationProductsBody">
+                                <!-- Los productos se agregan dinámicamente -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="empty-products" id="emptyProducts">
+                            <p><i class="fas fa-info-circle"></i> No hay productos agregados. Busca y selecciona productos arriba.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totales -->
+                <div class="form-section">
+                    <div class="quotation-totals">
+                        <div class="totals-grid">
+                            <div class="total-item">
+                                <span>Subtotal:</span>
+                                <span id="quotationSubtotal">$0.00</span>
+                            </div>
+                            <div class="total-item">
+                                <span>Descuento:</span>
+                                <span id="quotationDiscount">$0.00</span>
+                            </div>
+                            <div class="total-item">
+                                <span>ITBIS (18%):</span>
+                                <span id="quotationTax">$0.00</span>
+                            </div>
+                            <div class="total-item final-total">
+                                <span><strong>Total:</strong></span>
+                                <span id="quotationTotal"><strong>$0.00</strong></span>
+                            </div>
+                        </div>
+                        <div class="tax-option">
+                            <label>
+                                <input type="checkbox" id="includeTax" onchange="calculateQuotationTotals()"> Incluir ITBIS (18%)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> <span id="saveQuotationButtonText">Guardar Cotización</span>
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="previewQuotation()">
+                        <i class="fas fa-eye"></i> Vista Previa
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('quotationModal')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -2043,6 +2210,13 @@ ${categoryReport}
             if (modalId === 'productModal' && !editingProductId) {
                 clearProductForm();
             }
+            
+            // Abrir modal de nueva cotización
+            if (modalId === 'quotationModal' && !editingQuotationId) {
+                openNewQuotation();
+                return;
+            }
+            
             document.getElementById(modalId).classList.add('active');
         }
 
@@ -2143,6 +2317,465 @@ ${categoryReport}
         function exportQuotations() {
             showAlert('Cotizaciones exportadas a PDF', 'success');
         }
+
+        // === SISTEMA COMPLETO DE COTIZACIONES ===
+        
+        let quotations = [];
+        let editingQuotationId = null;
+        let quotationCounter = 1;
+        let selectedProducts = [];
+
+        // Inicializar cotizaciones
+        function initializeQuotations() {
+            // Cargar cotizaciones guardadas
+            const savedQuotations = localStorage.getItem('powertools_quotations');
+            if (savedQuotations) {
+                quotations = JSON.parse(savedQuotations);
+                quotationCounter = quotations.length > 0 ? Math.max(...quotations.map(q => parseInt(q.number.split('-')[1]))) + 1 : 1;
+            }
+            
+            // Agregar datos de ejemplo si no hay cotizaciones
+            if (quotations.length === 0) {
+                quotations = [
+                    {
+                        id: 1,
+                        number: 'COT-001',
+                        clientName: 'Constructora ABC',
+                        clientEmail: 'info@constructoraabc.com',
+                        clientPhone: '809-555-0101',
+                        clientCompany: 'Constructora ABC S.R.L.',
+                        clientAddress: 'Av. 27 de Febrero #123, Santo Domingo',
+                        date: '2025-08-08',
+                        validUntil: '2025-08-23',
+                        paymentTerms: '15dias',
+                        notes: 'Incluye instalación y garantía de 1 año',
+                        products: [
+                            { id: 1, name: 'Taladro Dewalt 20V', code: 'DW001', quantity: 2, unitPrice: 250.00, discount: 0 },
+                            { id: 2, name: 'Set de Brocas', code: 'BR001', quantity: 3, unitPrice: 35.00, discount: 5 }
+                        ],
+                        subtotal: 605.00,
+                        discount: 5.25,
+                        tax: 107.96,
+                        total: 707.71,
+                        status: 'pending',
+                        createdAt: new Date('2025-08-08').toISOString(),
+                        updatedAt: new Date('2025-08-08').toISOString()
+                    }
+                ];
+                saveQuotationsToStorage();
+            }
+            
+            updateQuotationsDisplay();
+        }
+
+        // Guardar cotizaciones en localStorage
+        function saveQuotationsToStorage() {
+            localStorage.setItem('powertools_quotations', JSON.stringify(quotations));
+        }
+
+        // Generar número de cotización automático
+        function generateQuotationNumber() {
+            return `COT-${String(quotationCounter).padStart(3, '0')}`;
+        }
+
+        // Abrir modal de nueva cotización
+        function openNewQuotation() {
+            editingQuotationId = null;
+            selectedProducts = [];
+            document.getElementById('quotationModalTitle').textContent = 'Nueva Cotización';
+            document.getElementById('saveQuotationButtonText').textContent = 'Guardar Cotización';
+            
+            // Limpiar formulario
+            clearQuotationForm();
+            
+            // Generar número automático
+            document.getElementById('quotationNumber').value = generateQuotationNumber();
+            
+            // Fecha actual
+            document.getElementById('quotationDate').value = new Date().toISOString().split('T')[0];
+            
+            // Fecha válida hasta (15 días por defecto)
+            const validUntil = new Date();
+            validUntil.setDate(validUntil.getDate() + 15);
+            document.getElementById('validUntil').value = validUntil.toISOString().split('T')[0];
+            
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+            
+            showModal('quotationModal');
+        }
+
+        // Limpiar formulario de cotización
+        function clearQuotationForm() {
+            document.getElementById('quotationForm').reset();
+            selectedProducts = [];
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+        }
+
+        // Buscar productos para cotización
+        function searchProductsForQuotation() {
+            const searchTerm = document.getElementById('productSearchQuotation').value.toLowerCase();
+            const resultsContainer = document.getElementById('productSearchResults');
+            
+            if (searchTerm.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            // Filtrar productos del inventario
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.code.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredProducts.length === 0) {
+                resultsContainer.innerHTML = '<div class="product-search-item"><div class="product-info">No se encontraron productos</div></div>';
+                resultsContainer.style.display = 'block';
+                return;
+            }
+            
+            // Mostrar resultados
+            resultsContainer.innerHTML = filteredProducts.map(product => `
+                <div class="product-search-item" onclick="addProductToQuotation(${product.id})">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-details">${product.code} - ${product.category}</div>
+                    </div>
+                    <div class="product-price">$${product.sellPrice.toFixed(2)}</div>
+                </div>
+            `).join('');
+            
+            resultsContainer.style.display = 'block';
+        }
+
+        // Agregar producto a la cotización
+        function addProductToQuotation(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            // Verificar si ya está agregado
+            const existingProduct = selectedProducts.find(p => p.id === productId);
+            if (existingProduct) {
+                existingProduct.quantity += 1;
+            } else {
+                selectedProducts.push({
+                    id: product.id,
+                    name: product.name,
+                    code: product.code,
+                    quantity: 1,
+                    unitPrice: product.sellPrice,
+                    discount: 0
+                });
+            }
+            
+            // Limpiar búsqueda
+            document.getElementById('productSearchQuotation').value = '';
+            document.getElementById('productSearchResults').style.display = 'none';
+            
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+        }
+
+        // Actualizar display de productos en cotización
+        function updateQuotationProductsDisplay() {
+            const tbody = document.getElementById('quotationProductsBody');
+            const emptyMessage = document.getElementById('emptyProducts');
+            
+            if (selectedProducts.length === 0) {
+                tbody.innerHTML = '';
+                emptyMessage.style.display = 'block';
+                return;
+            }
+            
+            emptyMessage.style.display = 'none';
+            
+            tbody.innerHTML = selectedProducts.map((product, index) => `
+                <tr>
+                    <td>${product.name}</td>
+                    <td>${product.code}</td>
+                    <td>
+                        <input type="number" class="quantity-input" value="${product.quantity}" 
+                               min="1" onchange="updateProductQuantity(${index}, this.value)">
+                    </td>
+                    <td>$${product.unitPrice.toFixed(2)}</td>
+                    <td>
+                        <input type="number" class="discount-input" value="${product.discount}" 
+                               min="0" max="100" onchange="updateProductDiscount(${index}, this.value)">%
+                    </td>
+                    <td>$${calculateLineTotal(product).toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="removeProductFromQuotation(${index})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Calcular total de línea
+        function calculateLineTotal(product) {
+            const subtotal = product.quantity * product.unitPrice;
+            const discountAmount = subtotal * (product.discount / 100);
+            return subtotal - discountAmount;
+        }
+
+        // Actualizar cantidad de producto
+        function updateProductQuantity(index, newQuantity) {
+            if (newQuantity < 1) return;
+            selectedProducts[index].quantity = parseInt(newQuantity);
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+        }
+
+        // Actualizar descuento de producto
+        function updateProductDiscount(index, newDiscount) {
+            if (newDiscount < 0 || newDiscount > 100) return;
+            selectedProducts[index].discount = parseFloat(newDiscount) || 0;
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+        }
+
+        // Eliminar producto de cotización
+        function removeProductFromQuotation(index) {
+            selectedProducts.splice(index, 1);
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+        }
+
+        // Calcular totales de cotización
+        function calculateQuotationTotals() {
+            let subtotal = 0;
+            let totalDiscount = 0;
+            
+            selectedProducts.forEach(product => {
+                const lineSubtotal = product.quantity * product.unitPrice;
+                const lineDiscount = lineSubtotal * (product.discount / 100);
+                subtotal += lineSubtotal;
+                totalDiscount += lineDiscount;
+            });
+            
+            const afterDiscount = subtotal - totalDiscount;
+            const includeTax = document.getElementById('includeTax').checked;
+            const tax = includeTax ? afterDiscount * 0.18 : 0;
+            const total = afterDiscount + tax;
+            
+            document.getElementById('quotationSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('quotationDiscount').textContent = `$${totalDiscount.toFixed(2)}`;
+            document.getElementById('quotationTax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('quotationTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Guardar cotización
+        function saveQuotation(event) {
+            event.preventDefault();
+            
+            if (selectedProducts.length === 0) {
+                showAlert('❌ Debe agregar al menos un producto a la cotización', 'error');
+                return;
+            }
+            
+            const quotationData = {
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                clientCompany: document.getElementById('clientCompany').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                date: document.getElementById('quotationDate').value,
+                validUntil: document.getElementById('validUntil').value,
+                paymentTerms: document.getElementById('paymentTerms').value,
+                notes: document.getElementById('quotationNotes').value,
+                products: [...selectedProducts],
+                includeTax: document.getElementById('includeTax').checked
+            };
+            
+            // Calcular totales finales
+            let subtotal = 0;
+            let totalDiscount = 0;
+            
+            selectedProducts.forEach(product => {
+                const lineSubtotal = product.quantity * product.unitPrice;
+                const lineDiscount = lineSubtotal * (product.discount / 100);
+                subtotal += lineSubtotal;
+                totalDiscount += lineDiscount;
+            });
+            
+            const afterDiscount = subtotal - totalDiscount;
+            const tax = quotationData.includeTax ? afterDiscount * 0.18 : 0;
+            const total = afterDiscount + tax;
+            
+            quotationData.subtotal = subtotal;
+            quotationData.discount = totalDiscount;
+            quotationData.tax = tax;
+            quotationData.total = total;
+            
+            if (editingQuotationId) {
+                // Editar cotización existente
+                const index = quotations.findIndex(q => q.id === editingQuotationId);
+                if (index !== -1) {
+                    quotations[index] = {
+                        ...quotations[index],
+                        ...quotationData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showAlert('✅ Cotización actualizada exitosamente', 'success');
+                }
+            } else {
+                // Nueva cotización
+                const newQuotation = {
+                    id: Date.now(),
+                    number: document.getElementById('quotationNumber').value,
+                    ...quotationData,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                quotations.push(newQuotation);
+                quotationCounter++;
+                showAlert('✅ Cotización creada exitosamente', 'success');
+            }
+            
+            saveQuotationsToStorage();
+            updateQuotationsDisplay();
+            closeModal('quotationModal');
+        }
+
+        // Actualizar display de cotizaciones
+        function updateQuotationsDisplay() {
+            const tbody = document.getElementById('quotationsTableBody');
+            const emptyMessage = document.getElementById('emptyQuotations');
+            
+            if (quotations.length === 0) {
+                tbody.innerHTML = '';
+                emptyMessage.style.display = 'block';
+                return;
+            }
+            
+            emptyMessage.style.display = 'none';
+            
+            tbody.innerHTML = quotations.map(quotation => {
+                const statusInfo = getQuotationStatusInfo(quotation.status);
+                const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+                
+                return `
+                    <tr>
+                        <td><strong>${quotation.number}</strong></td>
+                        <td>
+                            <div>${quotation.clientName}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${quotation.clientCompany || ''}</div>
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td><strong>$${quotation.total.toFixed(2)}</strong></td>
+                        <td><span class="badge ${statusInfo.class}">${statusInfo.text}</span></td>
+                        <td>
+                            <button class="btn btn-success" onclick="approveQuotation(${quotation.id})" title="Aprobar">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-warning" onclick="editQuotation(${quotation.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn" onclick="shareQuotation(${quotation.id})" title="Compartir">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteQuotation(${quotation.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Obtener información de estado
+        function getQuotationStatusInfo(status) {
+            const statusMap = {
+                'pending': { text: 'Pendiente', class: 'quotation-status-pending' },
+                'approved': { text: 'Aprobada', class: 'quotation-status-approved' },
+                'rejected': { text: 'Rechazada', class: 'quotation-status-rejected' },
+                'expired': { text: 'Expirada', class: 'quotation-status-expired' }
+            };
+            return statusMap[status] || { text: 'Desconocido', class: 'badge-secondary' };
+        }
+
+        // Eliminar cotización
+        function deleteQuotation(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            if (confirm(`¿Estás seguro de eliminar la cotización ${quotation.number}?\n\nEsta acción no se puede deshacer.`)) {
+                quotations = quotations.filter(q => q.id !== quotationId);
+                saveQuotationsToStorage();
+                updateQuotationsDisplay();
+                showAlert('🗑️ Cotización eliminada exitosamente', 'success');
+            }
+        }
+
+        // Vista previa de cotización
+        function previewQuotation() {
+            if (selectedProducts.length === 0) {
+                showAlert('❌ Debe agregar productos para ver la vista previa', 'error');
+                return;
+            }
+            
+            // Aquí se abriría una ventana con la vista previa de la cotización
+            showAlert('👁️ Abriendo vista previa de cotización...', 'info');
+        }
+
+        // Funciones adicionales
+        function approveQuotation(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (quotation) {
+                quotation.status = 'approved';
+                quotation.updatedAt = new Date().toISOString();
+                saveQuotationsToStorage();
+                updateQuotationsDisplay();
+                showAlert('✅ Cotización aprobada', 'success');
+            }
+        }
+
+        function editQuotation(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            editingQuotationId = quotationId;
+            selectedProducts = [...quotation.products];
+            
+            // Llenar formulario
+            document.getElementById('quotationModalTitle').textContent = 'Editar Cotización';
+            document.getElementById('saveQuotationButtonText').textContent = 'Actualizar Cotización';
+            document.getElementById('clientName').value = quotation.clientName;
+            document.getElementById('clientEmail').value = quotation.clientEmail || '';
+            document.getElementById('clientPhone').value = quotation.clientPhone || '';
+            document.getElementById('clientCompany').value = quotation.clientCompany || '';
+            document.getElementById('clientAddress').value = quotation.clientAddress || '';
+            document.getElementById('quotationNumber').value = quotation.number;
+            document.getElementById('quotationDate').value = quotation.date;
+            document.getElementById('validUntil').value = quotation.validUntil;
+            document.getElementById('paymentTerms').value = quotation.paymentTerms;
+            document.getElementById('quotationNotes').value = quotation.notes || '';
+            document.getElementById('includeTax').checked = quotation.tax > 0;
+            
+            updateQuotationProductsDisplay();
+            calculateQuotationTotals();
+            showModal('quotationModal');
+        }
+
+        function shareQuotation(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (quotation) {
+                // Simular compartir cotización
+                showAlert(`📤 Compartiendo cotización ${quotation.number} con ${quotation.clientName}`, 'info');
+            }
+        }
+
+        // Ocultar resultados de búsqueda al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.product-search-container')) {
+                document.getElementById('productSearchResults').style.display = 'none';
+            }
+        });
 
         function exportExpenses() {
             showAlert('Gastos exportados a Excel', 'success');
@@ -2665,6 +3298,9 @@ ${categoryReport}
             
             // Inicializar inventario
             initializeInventory();
+            
+            // Inicializar cotizaciones
+            initializeQuotations();
             
             // Optimizaciones para móviles
             optimizeForMobile();
