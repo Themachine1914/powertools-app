@@ -3031,78 +3031,89 @@ ${categoryReport}
         function shareQuotation(quotationId) {
             console.log('shareQuotation llamado con ID:', quotationId);
             
+            // Prueba simple primero
             const quotation = quotations.find(q => q.id === quotationId);
             if (!quotation) {
                 console.error('Cotización no encontrada:', quotationId);
-                showAlert('❌ Cotización no encontrada', 'error');
+                alert('❌ Cotización no encontrada');
                 return;
             }
             
             console.log('Cotización encontrada:', quotation);
             
-            const message = `🔧 *PowerTools RD - Cotización ${quotation.number}*\n\n` +
-                `📋 Cliente: ${quotation.clientName}\n` +
-                `📅 Fecha: ${new Date(quotation.date).toLocaleDateString('es-DO')}\n` +
-                `💰 Total: $${quotation.total.toFixed(2)}\n` +
-                `📦 Productos: ${quotation.products.length} items\n\n` +
-                `${quotation.products.map(p => `• ${p.name} (${p.quantity}x) - $${p.subtotal.toFixed(2)}`).join('\n')}\n\n` +
-                `⏰ Válida hasta: ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}\n` +
-                `${quotation.notes ? `📝 Notas: ${quotation.notes}\n` : ''}` +
-                `\n¡Gracias por confiar en PowerTools RD! 🛠️`;
+            // Modal simplificado para prueba
+            const shareModal = document.createElement('div');
+            shareModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
             
-            const shareOptions = `
-                <div style="text-align: center;">
-                    <p style="margin-bottom: 20px;">¿Cómo deseas compartir la cotización?</p>
-                    <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto;">
-                        <button onclick="shareViaWhatsApp('${encodeURIComponent(message)}', '${quotation.clientPhone}')" style="background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                            <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+            shareModal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 90%; text-align: center;">
+                    <h3 style="margin-bottom: 20px; color: #FF6B35;">Compartir Cotización ${quotation.number}</h3>
+                    <p style="margin-bottom: 30px;">Cliente: ${quotation.clientName}</p>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <button onclick="shareViaWhatsApp('${quotation.id}')" style="background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            📱 WhatsApp
                         </button>
-                        <button onclick="shareViaEmail('${quotation.clientEmail}', '${encodeURIComponent(`Cotización ${quotation.number} - PowerTools RD`)}', '${encodeURIComponent(message)}')" style="background: #0078D4; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                            <i class="fas fa-envelope"></i> Enviar por Email
+                        <button onclick="shareViaEmail('${quotation.id}')" style="background: #0078D4; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            📧 Email
                         </button>
-                        <button onclick="shareGeneric('${encodeURIComponent(message)}')" style="background: #6c757d; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                            <i class="fas fa-share-alt"></i> Otras opciones
+                        <button onclick="this.closest('div').parentElement.remove()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                            Cerrar
                         </button>
                     </div>
                 </div>
             `;
             
-            console.log('Mostrando modal de compartir');
-            showCustomModal('Compartir Cotización', shareOptions);
+            shareModal.onclick = (e) => {
+                if (e.target === shareModal) shareModal.remove();
+            };
+            
+            document.body.appendChild(shareModal);
+            console.log('Modal de compartir mostrado');
         }
 
-        // Compartir via WhatsApp
-        function shareViaWhatsApp(message, phone = '') {
-            const encodedMessage = message;
-            const phoneNumber = phone.replace(/\D/g, ''); // Remover caracteres no numéricos
-            const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        // Funciones de compartir simplificadas
+        function shareViaWhatsApp(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            const message = `Cotización ${quotation.number} - PowerTools RD
+Cliente: ${quotation.clientName}
+Total: $${quotation.total.toFixed(2)}
+Productos: ${quotation.products.length} items`;
+            
+            const url = `https://wa.me/${quotation.clientPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
-            document.querySelector('.modal').remove();
+            document.querySelector('div[style*="position: fixed"]').remove();
         }
 
-        // Compartir via Email
-        function shareViaEmail(email, subject, body) {
-            const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
-            window.open(mailtoUrl);
-            document.querySelector('.modal').remove();
-        }
+        function shareViaEmail(quotationId) {
+            const quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) return;
+            
+            const subject = `Cotización ${quotation.number} - PowerTools RD`;
+            const body = `Estimado/a ${quotation.clientName},
 
-        // Compartir genérico (API nativa del navegador)
-        function shareGeneric(message) {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Cotización PowerTools RD',
-                    text: decodeURIComponent(message)
-                }).then(() => {
-                    document.querySelector('.modal').remove();
-                });
-            } else {
-                // Fallback: copiar al portapapeles
-                navigator.clipboard.writeText(decodeURIComponent(message)).then(() => {
-                    showAlert('📋 Cotización copiada al portapapeles', 'success');
-                    document.querySelector('.modal').remove();
-                });
-            }
+Adjunto encuentra la cotización ${quotation.number} por un total de $${quotation.total.toFixed(2)}.
+
+Productos incluidos: ${quotation.products.length} items
+
+Saludos cordiales,
+PowerTools RD`;
+            
+            const url = `mailto:${quotation.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(url);
+            document.querySelector('div[style*="position: fixed"]').remove();
         }
 
         // Descargar cotización como PDF
@@ -3112,182 +3123,68 @@ ${categoryReport}
             const quotation = quotations.find(q => q.id === quotationId);
             if (!quotation) {
                 console.error('Cotización no encontrada:', quotationId);
-                showAlert('❌ Cotización no encontrada', 'error');
+                alert('❌ Cotización no encontrada');
                 return;
             }
             
             console.log('Cotización encontrada:', quotation);
-            showAlert('📄 Generando PDF...', 'info');
             
-            // Verificar que jsPDF esté disponible
+            // Verificar si jsPDF está disponible
             if (typeof window.jspdf === 'undefined') {
                 console.error('jsPDF no está disponible');
-                showAlert('❌ Error: Librería de PDF no disponible. Recargue la página.', 'error');
+                alert('❌ Error: Librería de PDF no disponible. Recargando...');
+                window.location.reload();
                 return;
             }
             
             console.log('jsPDF disponible, generando PDF...');
+            alert('📄 Generando PDF...');
             
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
-                // Configuración de colores
-                const primaryColor = [255, 107, 53]; // #FF6B35
-                const secondaryColor = [46, 64, 87]; // #2E4057
-                const grayColor = [102, 102, 102];
+                // Título
+                doc.setFontSize(20);
+                doc.setTextColor(255, 107, 53);
+                doc.text('PowerTools RD', 20, 30);
                 
-                // Header con logo y título
-                doc.setFillColor(...primaryColor);
-                doc.rect(0, 0, 210, 30, 'F');
-                
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(24);
-                doc.setFont('helvetica', 'bold');
-                doc.text('PowerTools RD', 20, 20);
-                
-                doc.setFontSize(14);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`COTIZACIÓN ${quotation.number}`, 120, 20);
-                
-                // Reset color
+                doc.setFontSize(16);
                 doc.setTextColor(0, 0, 0);
+                doc.text(`Cotización ${quotation.number}`, 20, 50);
                 
-                let yPos = 45;
-                
-                // Información del cliente y cotización
+                // Información del cliente
                 doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...secondaryColor);
-                doc.text('INFORMACIÓN DEL CLIENTE', 20, yPos);
-                doc.text('INFORMACIÓN DE LA COTIZACIÓN', 120, yPos);
-                
-                yPos += 8;
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(0, 0, 0);
-                
-                // Cliente
-                doc.text(`Nombre: ${quotation.clientName}`, 20, yPos);
-                doc.text(`Fecha: ${new Date(quotation.date).toLocaleDateString('es-DO')}`, 120, yPos);
-                yPos += 6;
-                
-                if (quotation.clientCompany) {
-                    doc.text(`Empresa: ${quotation.clientCompany}`, 20, yPos);
-                    yPos += 6;
-                }
-                
-                doc.text(`Email: ${quotation.clientEmail}`, 20, yPos);
-                doc.text(`Válida hasta: ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}`, 120, yPos);
-                yPos += 6;
-                
-                doc.text(`Teléfono: ${quotation.clientPhone}`, 20, yPos);
-                doc.text(`Estado: ${getQuotationStatusInfo(quotation.status).text}`, 120, yPos);
-                yPos += 6;
-                
-                doc.text(`Condiciones: ${quotation.paymentTerms}`, 120, yPos);
-                yPos += 15;
-                
-                // Tabla de productos
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...secondaryColor);
-                doc.text('PRODUCTOS/SERVICIOS', 20, yPos);
-                yPos += 10;
-                
-                // Headers de la tabla
-                const tableStartY = yPos;
-                doc.setFillColor(248, 249, 250);
-                doc.rect(20, yPos - 5, 170, 8, 'F');
-                
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(0, 0, 0);
-                doc.text('Producto/Servicio', 22, yPos);
-                doc.text('Cant.', 120, yPos);
-                doc.text('Precio Unit.', 140, yPos);
-                doc.text('Subtotal', 170, yPos);
-                yPos += 8;
+                doc.text(`Cliente: ${quotation.clientName}`, 20, 70);
+                doc.text(`Email: ${quotation.clientEmail}`, 20, 80);
+                doc.text(`Teléfono: ${quotation.clientPhone}`, 20, 90);
+                doc.text(`Fecha: ${new Date(quotation.date).toLocaleDateString()}`, 20, 100);
                 
                 // Productos
-                doc.setFont('helvetica', 'normal');
-                quotation.products.forEach((product, index) => {
-                    if (yPos > 250) { // Nueva página si es necesario
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    
-                    // Alternar color de fondo
-                    if (index % 2 === 1) {
-                        doc.setFillColor(248, 249, 250);
-                        doc.rect(20, yPos - 3, 170, 6, 'F');
-                    }
-                    
-                    doc.text(product.name.substring(0, 40), 22, yPos);
-                    doc.text(product.quantity.toString(), 125, yPos);
-                    doc.text(`$${product.price.toFixed(2)}`, 145, yPos);
-                    doc.text(`$${product.subtotal.toFixed(2)}`, 175, yPos);
-                    yPos += 6;
-                });
-                
+                let yPos = 120;
+                doc.text('Productos:', 20, yPos);
                 yPos += 10;
                 
-                // Totales
-                doc.setDrawColor(...grayColor);
-                doc.line(140, yPos, 190, yPos);
-                yPos += 5;
+                quotation.products.forEach(product => {
+                    doc.text(`• ${product.name} - Cantidad: ${product.quantity} - $${product.subtotal.toFixed(2)}`, 20, yPos);
+                    yPos += 10;
+                });
                 
-                doc.setFont('helvetica', 'normal');
-                doc.text('Subtotal:', 140, yPos);
-                doc.text(`$${quotation.subtotal.toFixed(2)}`, 175, yPos);
-                yPos += 5;
+                // Total
+                yPos += 10;
+                doc.setFontSize(14);
+                doc.text(`Total: $${quotation.total.toFixed(2)}`, 20, yPos);
                 
-                doc.text('ITBIS (18%):', 140, yPos);
-                doc.text(`$${quotation.tax.toFixed(2)}`, 175, yPos);
-                yPos += 8;
-                
-                // Total final
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(...primaryColor);
-                doc.text('TOTAL:', 140, yPos);
-                doc.text(`$${quotation.total.toFixed(2)}`, 175, yPos);
-                
-                // Notas si existen
-                if (quotation.notes) {
-                    yPos += 15;
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...secondaryColor);
-                    doc.text('NOTAS ADICIONALES:', 20, yPos);
-                    yPos += 5;
-                    
-                    doc.setFont('helvetica', 'normal');
-                    doc.setTextColor(0, 0, 0);
-                    const noteLines = doc.splitTextToSize(quotation.notes, 170);
-                    doc.text(noteLines, 20, yPos);
-                }
-                
-                // Footer
-                yPos = 280;
-                doc.setFillColor(...grayColor);
-                doc.rect(0, yPos, 210, 17, 'F');
-                
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'normal');
-                doc.text('PowerTools RD - Sistema de Gestión Empresarial', 20, yPos + 6);
-                doc.text(`Esta cotización es válida hasta ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}`, 20, yPos + 11);
-                doc.text('¡Gracias por confiar en nosotros!', 140, yPos + 8);
-                
-                // Guardar el PDF
-                const fileName = `Cotizacion_${quotation.number}_${quotation.clientName.replace(/\s+/g, '_')}.pdf`;
+                // Descargar
+                const fileName = `Cotizacion_${quotation.number}.pdf`;
                 doc.save(fileName);
                 
-                showAlert('✅ PDF descargado exitosamente', 'success');
+                console.log('PDF generado exitosamente');
+                alert('✅ PDF descargado exitosamente');
                 
             } catch (error) {
                 console.error('Error generando PDF:', error);
-                showAlert('❌ Error al generar PDF. Intente nuevamente.', 'error');
+                alert('❌ Error al generar PDF: ' + error.message);
             }
         }
 
