@@ -2448,6 +2448,10 @@ ${categoryReport}
                 quotationCounter = quotations.length > 0 ? Math.max(...quotations.map(q => parseInt(q.number.split('-')[1]))) + 1 : 1;
             }
             
+            console.log('=== INICIALIZACIÓN DE COTIZACIONES ===');
+            console.log('Cotizaciones cargadas:', quotations.length);
+            console.log('IDs de cotizaciones:', quotations.map(q => ({id: q.id, tipo: typeof q.id, numero: q.number})));
+            
             // Agregar datos de ejemplo si no hay cotizaciones
             if (quotations.length === 0) {
                 quotations = [
@@ -2770,6 +2774,10 @@ ${categoryReport}
 
         // Actualizar display de cotizaciones
         function updateQuotationsDisplay() {
+            console.log('=== ACTUALIZANDO DISPLAY DE COTIZACIONES ===');
+            console.log('Cotizaciones a mostrar:', quotations.length);
+            console.log('IDs para botones:', quotations.map(q => ({id: q.id, tipo: typeof q.id, numero: q.number})));
+            
             const tbody = document.getElementById('quotationsTableBody');
             const cardsContainer = document.getElementById('quotationsCards');
             const emptyMessage = document.getElementById('emptyQuotations');
@@ -3030,13 +3038,30 @@ ${categoryReport}
 
         // Compartir cotización por WhatsApp o Email
         function shareQuotation(quotationId) {
-            console.log('shareQuotation llamado con ID:', quotationId);
+            console.log('shareQuotation llamado con ID:', quotationId, 'tipo:', typeof quotationId);
+            console.log('Cotizaciones disponibles:', quotations.map(q => ({id: q.id, numero: q.number})));
             
-            // Prueba simple primero
-            const quotation = quotations.find(q => q.id === quotationId);
+            // Convertir a número si viene como string
+            const id = typeof quotationId === 'string' ? parseInt(quotationId) : quotationId;
+            console.log('ID convertido:', id, 'tipo:', typeof id);
+            
+            // Buscar cotización con verificación más robusta
+            let quotation = quotations.find(q => q.id === id);
+            
+            // Si no encuentra por ID numérico, buscar por ID como string
             if (!quotation) {
-                console.error('Cotización no encontrada:', quotationId);
-                alert('❌ Cotización no encontrada');
+                quotation = quotations.find(q => q.id == quotationId);
+            }
+            
+            // Si aún no encuentra, buscar por número de cotización
+            if (!quotation) {
+                quotation = quotations.find(q => q.number === quotationId.toString());
+            }
+            
+            if (!quotation) {
+                console.error('Cotización no encontrada con ID:', quotationId);
+                console.error('IDs disponibles:', quotations.map(q => q.id));
+                alert('❌ Cotización no encontrada. Verifica la consola para más detalles.');
                 return;
             }
             
@@ -3085,15 +3110,24 @@ ${categoryReport}
 
         // Funciones de compartir corregidas
         function shareViaWhatsApp(quotationId) {
-            console.log('shareViaWhatsApp llamado con ID:', quotationId);
+            console.log('shareViaWhatsApp llamado con ID:', quotationId, 'tipo:', typeof quotationId);
             
-            const quotation = quotations.find(q => q.id === quotationId);
+            // Usar la misma búsqueda robusta
+            const id = typeof quotationId === 'string' ? parseInt(quotationId) : quotationId;
+            let quotation = quotations.find(q => q.id === id);
+            
             if (!quotation) {
-                alert('Error: Cotización no encontrada');
+                quotation = quotations.find(q => q.id == quotationId);
+            }
+            
+            if (!quotation) {
+                console.error('Cotización no encontrada para WhatsApp:', quotationId);
+                console.error('Cotizaciones disponibles:', quotations.map(q => ({id: q.id, numero: q.number})));
+                alert('❌ Error: Cotización no encontrada para WhatsApp');
                 return;
             }
             
-            console.log('Datos de cotización:', quotation);
+            console.log('Datos de cotización para WhatsApp:', quotation);
             
             // Limpiar y formatear número de teléfono
             let phoneNumber = quotation.clientPhone || '';
@@ -3142,13 +3176,24 @@ ${categoryReport}
         }
 
         function shareViaEmail(quotationId) {
-            console.log('shareViaEmail llamado con ID:', quotationId);
+            console.log('shareViaEmail llamado con ID:', quotationId, 'tipo:', typeof quotationId);
             
-            const quotation = quotations.find(q => q.id === quotationId);
+            // Usar la misma búsqueda robusta
+            const id = typeof quotationId === 'string' ? parseInt(quotationId) : quotationId;
+            let quotation = quotations.find(q => q.id === id);
+            
             if (!quotation) {
-                alert('Error: Cotización no encontrada');
+                quotation = quotations.find(q => q.id == quotationId);
+            }
+            
+            if (!quotation) {
+                console.error('Cotización no encontrada para Email:', quotationId);
+                console.error('Cotizaciones disponibles:', quotations.map(q => ({id: q.id, numero: q.number})));
+                alert('❌ Error: Cotización no encontrada para Email');
                 return;
             }
+            
+            console.log('Datos de cotización para Email:', quotation);
             
             const subject = `Cotización ${quotation.number} - PowerTools RD`;
             const body = `Estimado/a ${quotation.clientName},
@@ -3194,16 +3239,24 @@ ${quotation.clientPhone || 'Tel: 809-XXX-XXXX'}`;
         // Descargar cotización como PDF - VERSIÓN ROBUSTA
         function downloadQuotationPDF(quotationId) {
             console.log('=== INICIO GENERACIÓN PDF ===');
-            console.log('downloadQuotationPDF llamado con ID:', quotationId);
+            console.log('downloadQuotationPDF llamado con ID:', quotationId, 'tipo:', typeof quotationId);
             
-            const quotation = quotations.find(q => q.id === quotationId);
+            // Usar la misma búsqueda robusta
+            const id = typeof quotationId === 'string' ? parseInt(quotationId) : quotationId;
+            let quotation = quotations.find(q => q.id === id);
+            
             if (!quotation) {
-                console.error('Cotización no encontrada:', quotationId);
-                alert('❌ Cotización no encontrada');
+                quotation = quotations.find(q => q.id == quotationId);
+            }
+            
+            if (!quotation) {
+                console.error('Cotización no encontrada para PDF:', quotationId);
+                console.error('Cotizaciones disponibles:', quotations.map(q => ({id: q.id, numero: q.number})));
+                alert('❌ Cotización no encontrada para PDF');
                 return;
             }
             
-            console.log('✅ Cotización encontrada:', quotation.number);
+            console.log('✅ Cotización encontrada para PDF:', quotation.number);
             
             // Verificar jsPDF con múltiples intentos
             let jsPDFLib = null;
