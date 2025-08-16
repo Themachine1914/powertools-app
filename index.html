@@ -368,6 +368,7 @@
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
     <!-- Login Screen -->
@@ -3082,42 +3083,117 @@ ${categoryReport}
             console.log('Modal de compartir mostrado');
         }
 
-        // Funciones de compartir simplificadas
+        // Funciones de compartir corregidas
         function shareViaWhatsApp(quotationId) {
+            console.log('shareViaWhatsApp llamado con ID:', quotationId);
+            
             const quotation = quotations.find(q => q.id === quotationId);
-            if (!quotation) return;
+            if (!quotation) {
+                alert('Error: Cotización no encontrada');
+                return;
+            }
             
-            const message = `Cotización ${quotation.number} - PowerTools RD
-Cliente: ${quotation.clientName}
-Total: $${quotation.total.toFixed(2)}
-Productos: ${quotation.products.length} items`;
+            console.log('Datos de cotización:', quotation);
             
-            const url = `https://wa.me/${quotation.clientPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-            document.querySelector('div[style*="position: fixed"]').remove();
+            // Limpiar y formatear número de teléfono
+            let phoneNumber = quotation.clientPhone || '';
+            phoneNumber = phoneNumber.replace(/\D/g, ''); // Solo números
+            
+            // Agregar código de país de República Dominicana si no tiene
+            if (phoneNumber.length === 10 && !phoneNumber.startsWith('1')) {
+                phoneNumber = '1' + phoneNumber;
+            }
+            
+            console.log('Número de teléfono formateado:', phoneNumber);
+            
+            // Mensaje más corto para evitar problemas de URL
+            const message = `Hola ${quotation.clientName}!
+            
+🔧 Cotización ${quotation.number} - PowerTools RD
+💰 Total: $${quotation.total.toFixed(2)}
+📦 ${quotation.products.length} productos
+
+¡Gracias por tu confianza!`;
+            
+            console.log('Mensaje a enviar:', message);
+            
+            try {
+                const encodedMessage = encodeURIComponent(message);
+                const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+                
+                console.log('URL de WhatsApp:', url);
+                
+                // Cerrar modal antes de abrir WhatsApp
+                const modal = document.querySelector('div[style*="position: fixed"]');
+                if (modal) modal.remove();
+                
+                // Abrir WhatsApp
+                window.open(url, '_blank');
+                
+                // Mostrar confirmación
+                setTimeout(() => {
+                    alert('✅ WhatsApp abierto. Si no se abrió automáticamente, verifica el número de teléfono.');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error al abrir WhatsApp:', error);
+                alert('Error al abrir WhatsApp: ' + error.message);
+            }
         }
 
         function shareViaEmail(quotationId) {
+            console.log('shareViaEmail llamado con ID:', quotationId);
+            
             const quotation = quotations.find(q => q.id === quotationId);
-            if (!quotation) return;
+            if (!quotation) {
+                alert('Error: Cotización no encontrada');
+                return;
+            }
             
             const subject = `Cotización ${quotation.number} - PowerTools RD`;
             const body = `Estimado/a ${quotation.clientName},
 
-Adjunto encuentra la cotización ${quotation.number} por un total de $${quotation.total.toFixed(2)}.
+Esperamos que se encuentre bien.
 
-Productos incluidos: ${quotation.products.length} items
+Adjunto los detalles de la cotización ${quotation.number}:
+
+📋 Cliente: ${quotation.clientName}
+📅 Fecha: ${new Date(quotation.date).toLocaleDateString()}
+💰 Total: $${quotation.total.toFixed(2)}
+📦 Cantidad de productos: ${quotation.products.length}
+
+PRODUCTOS:
+${quotation.products.map(p => `• ${p.name} (${p.quantity}x) - $${p.subtotal.toFixed(2)}`).join('\n')}
+
+Esta cotización es válida hasta ${new Date(quotation.validUntil).toLocaleDateString()}.
+
+Quedamos atentos a sus comentarios.
 
 Saludos cordiales,
-PowerTools RD`;
+PowerTools RD
+${quotation.clientPhone || 'Tel: 809-XXX-XXXX'}`;
             
-            const url = `mailto:${quotation.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(url);
-            document.querySelector('div[style*="position: fixed"]').remove();
+            try {
+                // Cerrar modal
+                const modal = document.querySelector('div[style*="position: fixed"]');
+                if (modal) modal.remove();
+                
+                const mailtoUrl = `mailto:${quotation.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(mailtoUrl);
+                
+                setTimeout(() => {
+                    alert('✅ Cliente de correo abierto. Si no se abrió automáticamente, copie manualmente la información.');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error al abrir email:', error);
+                alert('Error al abrir email: ' + error.message);
+            }
         }
 
-        // Descargar cotización como PDF
+        // Descargar cotización como PDF - VERSIÓN ROBUSTA
         function downloadQuotationPDF(quotationId) {
+            console.log('=== INICIO GENERACIÓN PDF ===');
             console.log('downloadQuotationPDF llamado con ID:', quotationId);
             
             const quotation = quotations.find(q => q.id === quotationId);
@@ -3127,64 +3203,150 @@ PowerTools RD`;
                 return;
             }
             
-            console.log('Cotización encontrada:', quotation);
+            console.log('✅ Cotización encontrada:', quotation.number);
             
-            // Verificar si jsPDF está disponible
-            if (typeof window.jspdf === 'undefined') {
-                console.error('jsPDF no está disponible');
-                alert('❌ Error: Librería de PDF no disponible. Recargando...');
-                window.location.reload();
+            // Verificar jsPDF con múltiples intentos
+            let jsPDFLib = null;
+            
+            if (typeof window.jspdf !== 'undefined') {
+                jsPDFLib = window.jspdf;
+                console.log('✅ jsPDF encontrado en window.jspdf');
+            } else if (typeof jsPDF !== 'undefined') {
+                jsPDFLib = { jsPDF: jsPDF };
+                console.log('✅ jsPDF encontrado globalmente');
+            } else {
+                console.error('❌ jsPDF no disponible');
+                alert('❌ Error: Librería de PDF no disponible.\n\nSoluciones:\n1. Recarga la página (Ctrl+F5)\n2. Verifica tu conexión a internet\n3. Intenta en otro navegador');
                 return;
             }
             
-            console.log('jsPDF disponible, generando PDF...');
-            alert('📄 Generando PDF...');
+            alert('📄 Generando PDF... Por favor espera.');
             
             try {
-                const { jsPDF } = window.jspdf;
+                console.log('� Iniciando generación del PDF...');
+                
+                const { jsPDF } = jsPDFLib;
                 const doc = new jsPDF();
                 
-                // Título
-                doc.setFontSize(20);
-                doc.setTextColor(255, 107, 53);
-                doc.text('PowerTools RD', 20, 30);
+                console.log('✅ Documento PDF creado');
                 
-                doc.setFontSize(16);
-                doc.setTextColor(0, 0, 0);
-                doc.text(`Cotización ${quotation.number}`, 20, 50);
+                // --- HEADER ---
+                doc.setFillColor(255, 107, 53);
+                doc.rect(0, 0, 210, 25, 'F');
                 
-                // Información del cliente
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(18);
+                doc.text('PowerTools RD', 15, 15);
+                
                 doc.setFontSize(12);
-                doc.text(`Cliente: ${quotation.clientName}`, 20, 70);
-                doc.text(`Email: ${quotation.clientEmail}`, 20, 80);
-                doc.text(`Teléfono: ${quotation.clientPhone}`, 20, 90);
-                doc.text(`Fecha: ${new Date(quotation.date).toLocaleDateString()}`, 20, 100);
+                doc.text(`Cotización ${quotation.number}`, 150, 15);
                 
-                // Productos
-                let yPos = 120;
-                doc.text('Productos:', 20, yPos);
-                yPos += 10;
+                // Reset
+                doc.setTextColor(0, 0, 0);
+                let y = 40;
                 
-                quotation.products.forEach(product => {
-                    doc.text(`• ${product.name} - Cantidad: ${product.quantity} - $${product.subtotal.toFixed(2)}`, 20, yPos);
-                    yPos += 10;
+                // --- INFORMACIÓN BÁSICA ---
+                doc.setFontSize(14);
+                doc.text('INFORMACIÓN DEL CLIENTE', 15, y);
+                y += 8;
+                
+                doc.setFontSize(10);
+                doc.text(`Cliente: ${quotation.clientName}`, 15, y);
+                y += 5;
+                doc.text(`Email: ${quotation.clientEmail}`, 15, y);
+                y += 5;
+                doc.text(`Teléfono: ${quotation.clientPhone}`, 15, y);
+                y += 5;
+                doc.text(`Fecha: ${new Date(quotation.date).toLocaleDateString()}`, 15, y);
+                y += 10;
+                
+                // --- PRODUCTOS ---
+                doc.setFontSize(14);
+                doc.text('PRODUCTOS', 15, y);
+                y += 8;
+                
+                doc.setFontSize(9);
+                doc.text('Producto', 15, y);
+                doc.text('Cant.', 120, y);
+                doc.text('Precio', 140, y);
+                doc.text('Subtotal', 170, y);
+                y += 5;
+                
+                // Línea separadora
+                doc.line(15, y, 195, y);
+                y += 5;
+                
+                console.log(`📝 Agregando ${quotation.products.length} productos...`);
+                
+                quotation.products.forEach((product, index) => {
+                    if (y > 250) { // Nueva página
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    const productName = product.name.length > 35 ? 
+                        product.name.substring(0, 35) + '...' : product.name;
+                    
+                    doc.text(productName, 15, y);
+                    doc.text(product.quantity.toString(), 125, y);
+                    doc.text(`$${product.price.toFixed(2)}`, 145, y);
+                    doc.text(`$${product.subtotal.toFixed(2)}`, 175, y);
+                    y += 5;
                 });
                 
-                // Total
-                yPos += 10;
-                doc.setFontSize(14);
-                doc.text(`Total: $${quotation.total.toFixed(2)}`, 20, yPos);
+                y += 10;
                 
-                // Descargar
-                const fileName = `Cotizacion_${quotation.number}.pdf`;
+                // --- TOTALES ---
+                doc.line(140, y, 195, y);
+                y += 5;
+                
+                doc.setFontSize(10);
+                doc.text('Subtotal:', 140, y);
+                doc.text(`$${quotation.subtotal.toFixed(2)}`, 175, y);
+                y += 5;
+                
+                doc.text('ITBIS (18%):', 140, y);
+                doc.text(`$${quotation.tax.toFixed(2)}`, 175, y);
+                y += 8;
+                
+                doc.setFontSize(12);
+                doc.text('TOTAL:', 140, y);
+                doc.text(`$${quotation.total.toFixed(2)}`, 175, y);
+                
+                // --- FOOTER ---
+                y = 280;
+                doc.setFontSize(8);
+                doc.text('PowerTools RD - Sistema de Gestión Empresarial', 15, y);
+                doc.text(`Válida hasta: ${new Date(quotation.validUntil).toLocaleDateString()}`, 15, y + 4);
+                
+                console.log('✅ PDF estructurado completamente');
+                
+                // --- GUARDAR ---
+                const fileName = `Cotizacion_${quotation.number}_${new Date().getTime()}.pdf`;
+                console.log('💾 Guardando como:', fileName);
+                
                 doc.save(fileName);
                 
-                console.log('PDF generado exitosamente');
-                alert('✅ PDF descargado exitosamente');
+                console.log('=== PDF GENERADO EXITOSAMENTE ===');
+                alert('✅ PDF descargado exitosamente!\n\nRevisa tu carpeta de Descargas.');
                 
             } catch (error) {
-                console.error('Error generando PDF:', error);
-                alert('❌ Error al generar PDF: ' + error.message);
+                console.error('=== ERROR EN GENERACIÓN PDF ===');
+                console.error('Tipo de error:', error.name);
+                console.error('Mensaje:', error.message);
+                console.error('Stack:', error.stack);
+                
+                let errorMessage = '❌ Error al generar PDF:\n\n';
+                
+                if (error.message.includes('jsPDF')) {
+                    errorMessage += 'Problema con la librería PDF.\nSolución: Recarga la página (Ctrl+F5)';
+                } else if (error.message.includes('save')) {
+                    errorMessage += 'Problema al guardar el archivo.\nSolución: Verifica permisos de descarga en tu navegador';
+                } else {
+                    errorMessage += error.message + '\n\nIntenta recargar la página';
+                }
+                
+                alert(errorMessage);
             }
         }
 
