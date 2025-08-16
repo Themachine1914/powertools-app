@@ -107,11 +107,49 @@
         #photoPreview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-bottom: 1rem; }
         .photo-actions { margin-top: 1rem; }
         .photo-actions .btn { margin: 0 0.25rem; }
-        .table .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .table .no-thumb { width: 50px; height: 50px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ccc; }
+        .table .product-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; cursor: pointer; }
+        .table .no-thumb { width: 50px; height: 50px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ccc; cursor: pointer; }
+        .product-link { color: #FF6B35; text-decoration: none; }
+        .product-link:hover { text-decoration: underline; }
+        
+        /* Product Details Modal Styles */
+        .product-details-modal { max-width: 900px; width: 95%; }
+        .product-details-content { display: flex; flex-direction: column; gap: 2rem; }
+        .product-details-main { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+        .product-details-image { text-align: center; }
+        .product-details-image img { width: 100%; max-width: 300px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .details-no-image { background: #f8f9fa; border: 2px dashed #ddd; border-radius: 12px; padding: 3rem 1rem; color: #999; }
+        .details-no-image i { font-size: 4rem; margin-bottom: 1rem; }
+        .detail-header h3 { color: #2E4057; margin-bottom: 0.5rem; font-size: 1.8rem; }
+        .product-code-large { background: #FF6B35; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .detail-section { margin-bottom: 2rem; }
+        .detail-section h4 { color: #FF6B35; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .detail-item { display: flex; justify-content: space-between; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; }
+        .detail-item label { font-weight: 600; color: #666; }
+        .stock-large { font-weight: bold; font-size: 1.2rem; }
+        .pricing-info { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .price-item { display: flex; justify-content: space-between; padding: 1rem; border-radius: 8px; }
+        .buy-price-detail { background: rgba(220, 53, 69, 0.1); }
+        .sell-price-detail { background: rgba(40, 167, 69, 0.1); }
+        .profit-detail { background: rgba(255, 193, 7, 0.1); }
+        .margin-detail { background: rgba(255, 107, 53, 0.1); }
+        .inventory-value { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+        .value-item { display: flex; justify-content: space-between; padding: 0.75rem; border-radius: 8px; background: #f8f9fa; }
+        .value-buy { color: #dc3545; font-weight: bold; }
+        .value-sell { color: #28a745; font-weight: bold; }
+        .value-profit { color: #FF6B35; font-weight: bold; }
+        .description-text, .notes-text { background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #FF6B35; }
+        .history-info { display: flex; gap: 1rem; }
+        .history-item { flex: 1; display: flex; justify-content: space-between; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; }
+        .details-actions { border-top: 1px solid #eee; padding-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
         
         @media (max-width: 768px) { 
             .container { padding: 1rem; }
+            .product-details-main { grid-template-columns: 1fr; }
+            .detail-grid, .pricing-info { grid-template-columns: 1fr; }
+            .history-info { flex-direction: column; }
+        }
             .stats-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .table { font-size: 0.9rem; }
@@ -792,6 +830,138 @@
             </form>
         </div>
     </div>
+
+    <!-- Product Details Modal -->
+    <div id="productDetailsModal" class="modal">
+        <div class="modal-content product-details-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Detalles del Producto</h2>
+                <button class="close-btn" onclick="closeModal('productDetailsModal')">&times;</button>
+            </div>
+            
+            <div class="product-details-content">
+                <div class="product-details-main">
+                    <div class="product-details-image">
+                        <img id="detailsImage" src="" alt="" style="display: none;">
+                        <div id="detailsNoImage" class="details-no-image">
+                            <i class="fas fa-image"></i>
+                            <p>Sin foto disponible</p>
+                        </div>
+                    </div>
+                    
+                    <div class="product-details-info">
+                        <div class="detail-header">
+                            <h3 id="detailsName">Nombre del Producto</h3>
+                            <span id="detailsCode" class="product-code-large">CÓDIGO</span>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4><i class="fas fa-info"></i> Información General</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <label>Marca:</label>
+                                    <span id="detailsBrand">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Categoría:</label>
+                                    <span id="detailsCategory">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Stock Actual:</label>
+                                    <span id="detailsStock" class="stock-large">0</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Stock Mínimo:</label>
+                                    <span id="detailsMinStock">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4><i class="fas fa-dollar-sign"></i> Precios y Rentabilidad</h4>
+                            <div class="pricing-info">
+                                <div class="price-item buy-price-detail">
+                                    <label>Precio de Compra:</label>
+                                    <span id="detailsBuyPrice">$0.00</span>
+                                </div>
+                                <div class="price-item sell-price-detail">
+                                    <label>Precio de Venta:</label>
+                                    <span id="detailsSellPrice">$0.00</span>
+                                </div>
+                                <div class="price-item profit-detail">
+                                    <label>Ganancia por Unidad:</label>
+                                    <span id="detailsProfit">$0.00</span>
+                                </div>
+                                <div class="price-item margin-detail">
+                                    <label>Margen de Ganancia:</label>
+                                    <span id="detailsMargin">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4><i class="fas fa-chart-line"></i> Valor del Inventario</h4>
+                            <div class="inventory-value">
+                                <div class="value-item">
+                                    <label>Valor de Compra Total:</label>
+                                    <span id="detailsTotalBuyValue" class="value-buy">$0.00</span>
+                                </div>
+                                <div class="value-item">
+                                    <label>Valor de Venta Total:</label>
+                                    <span id="detailsTotalSellValue" class="value-sell">$0.00</span>
+                                </div>
+                                <div class="value-item">
+                                    <label>Ganancia Potencial:</label>
+                                    <span id="detailsPotentialProfit" class="value-profit">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-details-secondary">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-align-left"></i> Descripción</h4>
+                        <p id="detailsDescription" class="description-text">Sin descripción disponible</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-sticky-note"></i> Notas Adicionales</h4>
+                        <p id="detailsNotes" class="notes-text">Sin notas adicionales</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-history"></i> Historial</h4>
+                        <div class="history-info">
+                            <div class="history-item">
+                                <label>Fecha de Creación:</label>
+                                <span id="detailsCreatedDate">-</span>
+                            </div>
+                            <div class="history-item">
+                                <label>Última Actualización:</label>
+                                <span id="detailsLastUpdated">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="details-actions">
+                    <button class="btn btn-warning" onclick="editProductFromDetails()">
+                        <i class="fas fa-edit"></i> Editar Producto
+                    </button>
+                    <button class="btn btn-success" onclick="adjustStockFromDetails()">
+                        <i class="fas fa-boxes"></i> Ajustar Stock
+                    </button>
+                    <button class="btn btn-info" onclick="duplicateProduct()">
+                        <i class="fas fa-copy"></i> Duplicar Producto
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal('productDetailsModal')">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Close Main App Container -->
     </div>
@@ -1117,13 +1287,13 @@
                 row.innerHTML = `
                     <td>
                         ${product.photo ? 
-                            `<img src="${product.photo}" alt="${product.name}" class="product-thumb">` :
-                            `<div class="no-thumb"><i class="fas fa-image"></i></div>`
+                            `<img src="${product.photo}" alt="${product.name}" class="product-thumb" onclick="viewProductDetails(${product.id})">` :
+                            `<div class="no-thumb" onclick="viewProductDetails(${product.id})"><i class="fas fa-image"></i></div>`
                         }
                     </td>
                     <td><strong>${product.code}</strong></td>
                     <td>
-                        <div><strong>${product.name}</strong></div>
+                        <div><strong><a href="#" onclick="viewProductDetails(${product.id})" class="product-link">${product.name}</a></strong></div>
                         <small class="text-muted">${product.brand || 'Sin marca'}</small>
                     </td>
                     <td><span class="badge badge-${getCategoryColor(product.category)}">${product.category}</span></td>
@@ -1135,6 +1305,9 @@
                     <td class="sell-price">$${product.sellPrice.toFixed(2)} <small>(+${profit}%)</small></td>
                     <td><span class="badge badge-${stockStatus.class}">${stockStatus.text}</span></td>
                     <td>
+                        <button class="btn btn-info" onclick="viewProductDetails(${product.id})" title="Ver Detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <button class="btn btn-warning" onclick="editProduct(${product.id})" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -1163,7 +1336,7 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <div class="product-image">
+                    <div class="product-image" onclick="viewProductDetails(${product.id})">
                         ${product.photo ? 
                             `<img src="${product.photo}" alt="${product.name}">` :
                             `<div class="no-image"><i class="fas fa-image"></i></div>`
@@ -1171,7 +1344,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-code">${product.code}</div>
-                        <h4>${product.name}</h4>
+                        <h4><a href="#" onclick="viewProductDetails(${product.id})" class="product-link">${product.name}</a></h4>
                         <p class="text-muted">${product.brand || 'Sin marca'} • ${product.category}</p>
                         <div class="product-prices">
                             <div class="buy-price">Compra: $${product.buyPrice.toFixed(2)}</div>
@@ -1182,6 +1355,9 @@
                             ${product.stock <= product.minStock ? '<i class="fas fa-exclamation-triangle text-danger"></i>' : ''}
                         </div>
                         <div class="action-buttons">
+                            <button class="btn btn-info" onclick="viewProductDetails(${product.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
                             <button class="btn btn-warning" onclick="editProduct(${product.id})">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
@@ -1449,6 +1625,118 @@
 • Valor total del inventario: $${totalValue.toFixed(2)}
 • Productos con stock bajo: ${lowStockCount}
 • Última actualización: ${new Date().toLocaleString('es-DO')}`, 'info');
+        }
+
+        // === VISTA DETALLADA DE PRODUCTOS ===
+        
+        let currentDetailProductId = null;
+        
+        function viewProductDetails(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentDetailProductId = productId;
+            
+            // Calcular valores
+            const profit = product.sellPrice - product.buyPrice;
+            const margin = product.buyPrice > 0 ? ((profit / product.buyPrice) * 100).toFixed(1) : 0;
+            const totalBuyValue = product.stock * product.buyPrice;
+            const totalSellValue = product.stock * product.sellPrice;
+            const potentialProfit = totalSellValue - totalBuyValue;
+            
+            // Llenar información básica
+            document.getElementById('detailsName').textContent = product.name;
+            document.getElementById('detailsCode').textContent = product.code;
+            document.getElementById('detailsBrand').textContent = product.brand || 'Sin marca';
+            document.getElementById('detailsCategory').textContent = product.category;
+            
+            // Stock
+            const stockStatus = getStockStatus(product.stock, product.minStock);
+            const stockElement = document.getElementById('detailsStock');
+            stockElement.textContent = product.stock;
+            stockElement.className = `stock-large stock-${stockStatus.class}`;
+            document.getElementById('detailsMinStock').textContent = product.minStock;
+            
+            // Precios
+            document.getElementById('detailsBuyPrice').textContent = `$${product.buyPrice.toFixed(2)}`;
+            document.getElementById('detailsSellPrice').textContent = `$${product.sellPrice.toFixed(2)}`;
+            document.getElementById('detailsProfit').textContent = `$${profit.toFixed(2)}`;
+            document.getElementById('detailsMargin').textContent = `${margin}%`;
+            
+            // Valores de inventario
+            document.getElementById('detailsTotalBuyValue').textContent = `$${totalBuyValue.toFixed(2)}`;
+            document.getElementById('detailsTotalSellValue').textContent = `$${totalSellValue.toFixed(2)}`;
+            document.getElementById('detailsPotentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
+            
+            // Descripción y notas
+            const descElement = document.getElementById('detailsDescription');
+            descElement.textContent = product.description || 'Sin descripción disponible';
+            
+            const notesElement = document.getElementById('detailsNotes');
+            notesElement.textContent = product.notes || 'Sin notas adicionales';
+            
+            // Historial
+            document.getElementById('detailsCreatedDate').textContent = product.createdDate || '-';
+            document.getElementById('detailsLastUpdated').textContent = product.lastUpdated || '-';
+            
+            // Imagen
+            const imageElement = document.getElementById('detailsImage');
+            const noImageElement = document.getElementById('detailsNoImage');
+            
+            if (product.photo) {
+                imageElement.src = product.photo;
+                imageElement.style.display = 'block';
+                noImageElement.style.display = 'none';
+            } else {
+                imageElement.style.display = 'none';
+                noImageElement.style.display = 'block';
+            }
+            
+            // Mostrar modal
+            showModal('productDetailsModal');
+        }
+        
+        function editProductFromDetails() {
+            closeModal('productDetailsModal');
+            editProduct(currentDetailProductId);
+        }
+        
+        function adjustStockFromDetails() {
+            adjustStock(currentDetailProductId);
+            // Actualizar la vista de detalles con los nuevos valores
+            setTimeout(() => {
+                if (document.getElementById('productDetailsModal').classList.contains('active')) {
+                    viewProductDetails(currentDetailProductId);
+                }
+            }, 100);
+        }
+        
+        function duplicateProduct() {
+            const product = products.find(p => p.id === currentDetailProductId);
+            if (!product) return;
+            
+            if (confirm(`¿Deseas crear una copia de "${product.name}"?`)) {
+                // Cerrar modal de detalles
+                closeModal('productDetailsModal');
+                
+                // Llenar formulario con datos del producto (sin foto)
+                document.getElementById('productCode').value = `${product.code}-COPY`;
+                document.getElementById('productName').value = `${product.name} (Copia)`;
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productBrand').value = product.brand || '';
+                document.getElementById('productStock').value = '0';
+                document.getElementById('productMinStock').value = product.minStock;
+                document.getElementById('productBuyPrice').value = product.buyPrice;
+                document.getElementById('productSellPrice').value = product.sellPrice;
+                document.getElementById('productNotes').value = product.notes || '';
+                
+                // Limpiar foto
+                removeProductPhoto();
+                
+                // Mostrar modal de producto
+                showModal('productModal');
+            }
         }
         
         function updateUsersTable() {
