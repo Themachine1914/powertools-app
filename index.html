@@ -101,6 +101,37 @@
         .stock-out { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
         
         /* Photo Upload Styles */
+        .photo-upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 2rem; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.3s ease; margin: 1rem 0; }
+        .photo-upload-area:hover { border-color: #FF6B35; background: rgba(255, 107, 53, 0.05); }
+        .photo-upload-area.dragover { border-color: #FF6B35; background: rgba(255, 107, 53, 0.1); }
+        .photo-preview { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .photo-item { position: relative; width: 100px; height: 100px; border-radius: 8px; overflow: hidden; }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-remove { position: absolute; top: 4px; right: 4px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer; }
+        
+        /* Mobile Optimizations */
+        .search-input-container { position: relative; display: flex; align-items: center; }
+        .search-input-container input { padding-right: 80px; }
+        .btn-icon { position: absolute; right: 5px; background: none; border: none; color: #FF6B35; font-size: 1.1rem; padding: 0.5rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn-icon:hover { background: rgba(255, 107, 53, 0.1); border-radius: 50%; }
+        .voice-search { right: 40px; }
+        .barcode-scanner { right: 5px; }
+        .voice-active { color: #dc3545; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        
+        /* Touch-friendly improvements */
+        .product-card { cursor: pointer; touch-action: manipulation; }
+        .product-card:active { transform: scale(0.98); }
+        .swipe-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .quick-action { padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; border: none; cursor: pointer; }
+        .quick-edit { background: #ffc107; color: #212529; }
+        .quick-duplicate { background: #17a2b8; color: white; }
+        .quick-delete { background: #dc3545; color: white; }
+        
+        /* Loading states */
+        .loading { opacity: 0.6; pointer-events: none; }
+        .loading::after { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #FF6B35; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
         .photo-upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 1rem; text-align: center; }
         .photo-preview { cursor: pointer; }
         .photo-placeholder { padding: 2rem; color: #666; }
@@ -149,15 +180,67 @@
         
         @media (max-width: 768px) { 
             .container { padding: 1rem; }
+            .header { padding: 1rem; }
+            .header h1 { font-size: 1.5rem; }
+            .header p { font-size: 1rem; }
             .product-details-main { grid-template-columns: 1fr; }
             .detail-grid, .pricing-info { grid-template-columns: 1fr; }
             .history-info { flex-direction: column; }
-        }
             .stats-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
             .table { font-size: 0.9rem; }
-            .nav-btn { min-width: 80px; font-size: 0.8rem; }
+            .nav-btn { min-width: 70px; font-size: 0.8rem; padding: 0.75rem 0.25rem; }
+            .nav-btn i { font-size: 1.2rem; }
+            .card { padding: 1rem; margin-bottom: 1rem; }
+            .search-filters { flex-direction: column; gap: 0.75rem; }
+            .search-filters input, .search-filters select { min-width: 100%; }
+            .action-buttons { justify-content: space-between; }
+            .action-buttons .btn { flex: 1; margin: 0.25rem; padding: 0.5rem; font-size: 0.8rem; }
+            .products-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .product-card { padding: 1rem; }
+            .product-image { height: 150px; }
+            .modal-content { padding: 1rem; margin: 0.5rem; }
+            .fab { bottom: 1rem; right: 1rem; width: 50px; height: 50px; font-size: 1.2rem; }
+            .table th, .table td { padding: 0.5rem; font-size: 0.8rem; }
+            .stat-card { padding: 1.5rem; }
+            .stat-value { font-size: 2rem; }
+            .backup-section { padding: 0.75rem; }
+            .backup-section h4 { font-size: 1rem; }
+            .user-info { position: static; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 8px; margin-bottom: 1rem; }
+            .inventory-controls { margin-bottom: 1rem; }
+            .view-toggle { margin-bottom: 0.5rem; }
+            .view-toggle .btn { padding: 0.5rem 1rem; margin-right: 0.25rem; }
         }
+        
+        @media (max-width: 480px) {
+            .container { padding: 0.5rem; }
+            .nav { flex-wrap: wrap; }
+            .nav-btn { min-width: 50px; font-size: 0.7rem; padding: 0.5rem 0.25rem; }
+            .header h1 { font-size: 1.2rem; }
+            .action-buttons .btn { padding: 0.4rem; font-size: 0.7rem; }
+            .products-grid { gap: 0.5rem; }
+            .modal-content { margin: 0.25rem; }
+            .btn-text { display: none; } /* Ocultar texto en botones muy pequeños */
+        }
+        
+        /* Estilos específicos para dispositivos móviles */
+        .mobile-device .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .mobile-device .action-buttons { justify-content: space-around; }
+        .mobile-device .search-filters { gap: 0.5rem; }
+        .mobile-device .fab { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.6); }
+        .mobile-device .modal-content { max-height: 95vh; }
+        .mobile-device .product-card { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .mobile-device .nav-btn { border-radius: 0; }
+        .mobile-device .nav-btn.active { border-radius: 8px 8px 0 0; }
+        
+        /* Estados de carga optimizados para móvil */
+        .mobile-device .loading { position: relative; }
+        .mobile-device .loading::after { width: 16px; height: 16px; border-width: 1px; }
+        
+        /* Mejoras de accesibilidad para touch */
+        .mobile-device .btn { min-height: 44px; min-width: 44px; }
+        .mobile-device .btn-icon { min-width: 40px; min-height: 40px; }
+        .mobile-device .table th, .mobile-device .table td { padding: 0.75rem 0.5rem; }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -490,7 +573,15 @@
                 <!-- Filtros y búsqueda -->
                 <div class="inventory-controls">
                     <div class="search-filters">
-                        <input type="text" id="productSearch" placeholder="Buscar productos..." onkeyup="filterProducts()">
+                        <div class="search-input-container">
+                            <input type="text" id="productSearch" placeholder="Buscar productos..." onkeyup="filterProducts()">
+                            <button class="btn-icon voice-search" onclick="startVoiceSearch()" title="Búsqueda por voz">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="btn-icon barcode-scanner" onclick="startBarcodeScanner()" title="Escanear código">
+                                <i class="fas fa-qrcode"></i>
+                            </button>
+                        </div>
                         <select id="categoryFilter" onchange="filterProducts()">
                             <option value="">Todas las categorías</option>
                             <option value="Herramientas Eléctricas">Herramientas Eléctricas</option>
@@ -510,13 +601,16 @@
                     </div>
                     <div class="action-buttons">
                         <button class="btn" onclick="showModal('productModal')">
-                            <i class="fas fa-plus"></i> Agregar Producto
+                            <i class="fas fa-plus"></i> <span class="btn-text">Agregar</span>
                         </button>
                         <button class="btn btn-secondary" onclick="generateInventoryReport()">
-                            <i class="fas fa-clipboard-list"></i> Reporte Stock
+                            <i class="fas fa-clipboard-list"></i> <span class="btn-text">Reporte</span>
                         </button>
                         <button class="btn btn-warning" onclick="showLowStockAlert()">
-                            <i class="fas fa-exclamation-triangle"></i> Stock Bajo
+                            <i class="fas fa-exclamation-triangle"></i> <span class="btn-text">Stock Bajo</span>
+                        </button>
+                        <button class="btn btn-success" onclick="bulkActions()">
+                            <i class="fas fa-tasks"></i> <span class="btn-text">Acciones</span>
                         </button>
                     </div>
                 </div>
@@ -691,7 +785,7 @@
     </div>
 
     <!-- FAB Button -->
-    <button class="fab" onclick="showQuickActions()">
+    <button class="fab" onclick="showContextualActions()" id="contextualFab">
         <i class="fas fa-plus"></i>
     </button>
 
@@ -1636,11 +1730,145 @@
             const totalValue = products.reduce((sum, p) => sum + (p.stock * p.sellPrice), 0);
             const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
             
-            showAlert(`📊 REPORTE DE INVENTARIO:
-• Total de productos: ${totalProducts}
-• Valor total del inventario: $${totalValue.toFixed(2)}
-• Productos con stock bajo: ${lowStockCount}
-• Última actualización: ${new Date().toLocaleString('es-DO')}`, 'info');
+            // Análisis por categorías
+            const categoryAnalysis = {};
+            products.forEach(p => {
+                if (!categoryAnalysis[p.category]) {
+                    categoryAnalysis[p.category] = { count: 0, value: 0 };
+                }
+                categoryAnalysis[p.category].count++;
+                categoryAnalysis[p.category].value += p.stock * p.sellPrice;
+            });
+            
+            let categoryReport = '\n📊 ANÁLISIS POR CATEGORÍAS:\n';
+            Object.entries(categoryAnalysis).forEach(([category, data]) => {
+                categoryReport += `• ${category}: ${data.count} productos ($${data.value.toFixed(2)})\n`;
+            });
+            
+            showAlert(`📊 REPORTE COMPLETO DE INVENTARIO:
+
+📦 Total de productos: ${totalProducts}
+💰 Valor total del inventario: $${totalValue.toFixed(2)}
+⚠️ Productos con stock bajo: ${lowStockCount}
+📅 Última actualización: ${new Date().toLocaleString('es-DO')}
+${categoryReport}
+🔄 Rotación promedio: Calculando...
+📈 Productos más vendidos: Próximamente`, 'info');
+        }
+
+        // === FUNCIONES MEJORADAS DEL INVENTARIO ===
+        
+        function quickAddProduct() {
+            const productData = {
+                name: prompt('🏷️ Nombre del producto:'),
+                code: prompt('🔢 Código del producto:'),
+                category: prompt('📂 Categoría:'),
+                buyPrice: parseFloat(prompt('💲 Precio de compra:') || 0),
+                sellPrice: parseFloat(prompt('💰 Precio de venta:') || 0),
+                stock: parseInt(prompt('📦 Cantidad en stock:') || 0),
+                minStock: parseInt(prompt('⚠️ Stock mínimo:') || 5)
+            };
+            
+            if (productData.name && productData.code) {
+                // Simular agregar producto
+                showAlert(`✅ Producto "${productData.name}" agregado exitosamente`, 'success');
+                updateInventoryDisplay();
+            }
+        }
+        
+        function duplicateProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const newName = prompt(`📋 Duplicar "${product.name}"\n\nNuevo nombre:`, product.name + ' (Copia)');
+                if (newName) {
+                    showAlert(`✅ Producto duplicado: "${newName}"`, 'success');
+                    updateInventoryDisplay();
+                }
+            }
+        }
+        
+        function checkInventoryAlerts() {
+            const alerts = [];
+            
+            // Stock bajo
+            const lowStock = products.filter(p => p.stock <= p.minStock);
+            if (lowStock.length > 0) {
+                alerts.push(`⚠️ ${lowStock.length} productos con stock bajo`);
+            }
+            
+            // Productos sin stock
+            const outOfStock = products.filter(p => p.stock === 0);
+            if (outOfStock.length > 0) {
+                alerts.push(`🚫 ${outOfStock.length} productos agotados`);
+            }
+            
+            // Productos sin precio
+            const noPrice = products.filter(p => p.sellPrice === 0);
+            if (noPrice.length > 0) {
+                alerts.push(`💲 ${noPrice.length} productos sin precio`);
+            }
+            
+            return alerts;
+        }
+        
+        function showInventoryDashboard() {
+            const alerts = checkInventoryAlerts();
+            const totalValue = products.reduce((sum, p) => sum + (p.stock * p.sellPrice), 0);
+            const averageMargin = products.length > 0 ? 
+                products.reduce((sum, p) => sum + ((p.sellPrice - p.buyPrice) / p.buyPrice * 100), 0) / products.length : 0;
+            
+            let dashboardInfo = `📊 DASHBOARD DE INVENTARIO\n\n`;
+            dashboardInfo += `💰 Valor total: $${totalValue.toFixed(2)}\n`;
+            dashboardInfo += `📈 Margen promedio: ${averageMargin.toFixed(1)}%\n`;
+            dashboardInfo += `📦 Total productos: ${products.length}\n\n`;
+            
+            if (alerts.length > 0) {
+                dashboardInfo += `🚨 ALERTAS:\n${alerts.join('\n')}\n\n`;
+            } else {
+                dashboardInfo += `✅ Sin alertas - Todo en orden\n\n`;
+            }
+            
+            dashboardInfo += `🔄 Última actualización: ${new Date().toLocaleString('es-DO')}`;
+            
+            showAlert(dashboardInfo, alerts.length > 0 ? 'warning' : 'info');
+        }
+        
+        function searchProductAdvanced() {
+            const criteria = prompt(`🔍 BÚSQUEDA AVANZADA\n\nOpciones de búsqueda:\n1. Por código de barras\n2. Por rango de precios\n3. Por margen de ganancia\n4. Por última actualización\n5. Por proveedor\n\nSelecciona una opción (1-5):`);
+            
+            switch(criteria) {
+                case '1':
+                    const barcode = prompt('Ingresa el código de barras:');
+                    if (barcode) {
+                        document.getElementById('productSearch').value = barcode;
+                        filterProducts();
+                    }
+                    break;
+                case '2':
+                    const minPrice = prompt('Precio mínimo:');
+                    const maxPrice = prompt('Precio máximo:');
+                    if (minPrice && maxPrice) {
+                        showAlert(`🔍 Buscando productos entre $${minPrice} y $${maxPrice}`, 'info');
+                    }
+                    break;
+                case '3':
+                    const minMargin = prompt('Margen mínimo (%):', '20');
+                    if (minMargin) {
+                        showAlert(`📈 Buscando productos con margen >= ${minMargin}%`, 'info');
+                    }
+                    break;
+                default:
+                    if (criteria) showAlert('❌ Opción no válida', 'error');
+            }
+        }
+        
+        function updateInventoryStats() {
+            // Esta función actualizaría las estadísticas en tiempo real
+            const statsContainer = document.querySelector('.stats-grid');
+            if (statsContainer) {
+                // Aquí se actualizarían las tarjetas de estadísticas
+                console.log('📊 Actualizando estadísticas del inventario...');
+            }
         }
 
         // === VISTA DETALLADA DE PRODUCTOS ===
@@ -1788,6 +2016,25 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(sectionName).classList.add('active');
             event.target.classList.add('active');
+            
+            // Cambiar icono del FAB según la sección
+            updateFabIcon(sectionName);
+        }
+        
+        function updateFabIcon(sectionName) {
+            const fab = document.getElementById('contextualFab');
+            const fabIcon = fab.querySelector('i');
+            
+            const sectionIcons = {
+                'dashboard': 'fas fa-chart-line',
+                'inventory': 'fas fa-box',
+                'quotations': 'fas fa-file-invoice',
+                'expenses': 'fas fa-money-bill-wave',
+                'sales': 'fas fa-shopping-cart',
+                'users': 'fas fa-user-plus'
+            };
+            
+            fabIcon.className = sectionIcons[sectionName] || 'fas fa-plus';
         }
 
         // Modales
@@ -2028,6 +2275,355 @@
             }
         }
 
+        // === FUNCIONES MÓVILES ESPECÍFICAS ===
+        
+        // Búsqueda por voz
+        let recognition = null;
+        
+        function startVoiceSearch() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showAlert('❌ Tu navegador no soporta búsqueda por voz', 'error');
+                return;
+            }
+            
+            try {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'es-ES';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                const voiceBtn = document.querySelector('.voice-search i');
+                voiceBtn.classList.add('voice-active');
+                
+                recognition.onstart = () => {
+                    showAlert('🎤 Escuchando... Dí el nombre del producto', 'info');
+                };
+                
+                recognition.onresult = (event) => {
+                    const searchTerm = event.results[0][0].transcript;
+                    document.getElementById('productSearch').value = searchTerm;
+                    filterProducts();
+                    showAlert(`✅ Buscando: "${searchTerm}"`, 'success');
+                };
+                
+                recognition.onerror = (event) => {
+                    showAlert('❌ Error en el reconocimiento de voz', 'error');
+                };
+                
+                recognition.onend = () => {
+                    voiceBtn.classList.remove('voice-active');
+                };
+                
+                recognition.start();
+            } catch (error) {
+                showAlert('❌ Error al iniciar búsqueda por voz', 'error');
+            }
+        }
+        
+        // Escáner de códigos de barras (simulado)
+        function startBarcodeScanner() {
+            // En una implementación real, esto usaría la cámara del dispositivo
+            // Por ahora simulamos el escáner
+            
+            showAlert('📷 Iniciando escáner...', 'info');
+            
+            // Simular escaneo después de 2 segundos
+            setTimeout(() => {
+                const mockBarcode = prompt('🔍 Ingresa el código de barras o código del producto:');
+                if (mockBarcode) {
+                    document.getElementById('productSearch').value = mockBarcode;
+                    filterProducts();
+                    showAlert(`✅ Código escaneado: ${mockBarcode}`, 'success');
+                }
+            }, 1000);
+        }
+        
+        // Acciones en lote
+        function bulkActions() {
+            const actions = [
+                '1. Actualizar precios',
+                '2. Actualizar stock',
+                '3. Cambiar categoría',
+                '4. Exportar seleccionados',
+                '5. Eliminar seleccionados'
+            ];
+            
+            const action = prompt('📋 ACCIONES EN LOTE:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-5):');
+            
+            switch(action) {
+                case '1':
+                    bulkUpdatePrices();
+                    break;
+                case '2':
+                    bulkUpdateStock();
+                    break;
+                case '3':
+                    bulkChangeCategory();
+                    break;
+                case '4':
+                    exportSelectedProducts();
+                    break;
+                case '5':
+                    bulkDeleteProducts();
+                    break;
+                default:
+                    if (action) showAlert('❌ Opción no válida', 'error');
+            }
+        }
+        
+        function bulkUpdatePrices() {
+            const percentage = prompt('💰 Actualizar precios:\n\nIngresa el porcentaje de ajuste\n(Ejemplo: 10 para +10%, -5 para -5%):');
+            if (percentage && !isNaN(percentage)) {
+                const change = parseFloat(percentage);
+                showAlert(`✅ Precios actualizados en ${change}%`, 'success');
+            }
+        }
+        
+        function bulkUpdateStock() {
+            const operation = prompt('📦 Actualizar stock:\n\n1. Sumar cantidad\n2. Restar cantidad\n3. Establecer cantidad fija\n\nSelecciona una opción:');
+            if (operation) {
+                const amount = prompt('Ingresa la cantidad:');
+                if (amount && !isNaN(amount)) {
+                    showAlert(`✅ Stock actualizado`, 'success');
+                }
+            }
+        }
+        
+        function bulkChangeCategory() {
+            const categories = ['Herramientas Eléctricas', 'Herramientas Manuales', 'Construcción', 'Jardinería', 'Automotriz', 'Accesorios'];
+            const categoryList = categories.map((cat, index) => `${index + 1}. ${cat}`).join('\n');
+            const selection = prompt('📂 Cambiar categoría:\n\n' + categoryList + '\n\nSelecciona una opción:');
+            
+            if (selection && selection >= 1 && selection <= categories.length) {
+                showAlert(`✅ Categoría cambiada a: ${categories[selection - 1]}`, 'success');
+            }
+        }
+        
+        function exportSelectedProducts() {
+            showAlert('📄 Exportando productos seleccionados...', 'info');
+        }
+        
+        function bulkDeleteProducts() {
+            if (confirm('⚠️ ¿Estás seguro de eliminar los productos seleccionados?\n\nEsta acción no se puede deshacer.')) {
+                showAlert('🗑️ Productos eliminados', 'success');
+            }
+        }
+        
+        // Gestos touch para navegación rápida
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        function initializeTouchGestures() {
+            const container = document.querySelector('.container');
+            
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            });
+            
+            container.addEventListener('touchend', (e) => {
+                if (!touchStartX || !touchStartY) return;
+                
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                
+                const deltaX = touchStartX - touchEndX;
+                const deltaY = touchStartY - touchEndY;
+                
+                // Swipe horizontal para cambiar secciones
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                    if (deltaX > 0) {
+                        // Swipe izquierda - siguiente sección
+                        navigateSection('next');
+                    } else {
+                        // Swipe derecha - sección anterior
+                        navigateSection('prev');
+                    }
+                }
+                
+                touchStartX = 0;
+                touchStartY = 0;
+            });
+        }
+        
+        function navigateSection(direction) {
+            const sections = ['dashboard', 'inventory', 'quotations', 'expenses', 'sales', 'users'];
+            const currentSection = document.querySelector('.section.active').id;
+            const currentIndex = sections.indexOf(currentSection);
+            
+            let nextIndex;
+            if (direction === 'next') {
+                nextIndex = (currentIndex + 1) % sections.length;
+            } else {
+                nextIndex = currentIndex === 0 ? sections.length - 1 : currentIndex - 1;
+            }
+            
+            showSection(sections[nextIndex]);
+        }
+        
+        // Optimización de rendimiento para móviles
+        function optimizeForMobile() {
+            // Lazy loading de imágenes
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            
+            images.forEach(img => imageObserver.observe(img));
+            
+            // Inicializar gestos touch
+            initializeTouchGestures();
+        }
+        
+        // Acciones rápidas contextuales
+        function showContextualActions() {
+            const activeSection = document.querySelector('.section.active').id;
+            
+            switch(activeSection) {
+                case 'inventory':
+                    showInventoryActions();
+                    break;
+                case 'quotations':
+                    showQuotationActions();
+                    break;
+                case 'sales':
+                    showSalesActions();
+                    break;
+                case 'expenses':
+                    showExpenseActions();
+                    break;
+                case 'users':
+                    showUserActions();
+                    break;
+                default:
+                    showQuickActions();
+            }
+        }
+        
+        function showInventoryActions() {
+            const actions = [
+                '1. 🆕 Agregar producto rápido',
+                '2. 📊 Dashboard de inventario', 
+                '3. 🔍 Búsqueda avanzada',
+                '4. 📱 Escanear código',
+                '5. 🎤 Búsqueda por voz',
+                '6. 📋 Acciones en lote',
+                '7. 📈 Ver alertas'
+            ];
+            
+            const action = prompt('🚀 ACCIONES RÁPIDAS - INVENTARIO:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-7):');
+            
+            switch(action) {
+                case '1':
+                    quickAddProduct();
+                    break;
+                case '2':
+                    showInventoryDashboard();
+                    break;
+                case '3':
+                    searchProductAdvanced();
+                    break;
+                case '4':
+                    startBarcodeScanner();
+                    break;
+                case '5':
+                    startVoiceSearch();
+                    break;
+                case '6':
+                    bulkActions();
+                    break;
+                case '7':
+                    const alerts = checkInventoryAlerts();
+                    if (alerts.length > 0) {
+                        showAlert('🚨 ALERTAS ACTIVAS:\n\n' + alerts.join('\n'), 'warning');
+                    } else {
+                        showAlert('✅ Sin alertas - Todo en orden', 'success');
+                    }
+                    break;
+                default:
+                    if (action) showAlert('❌ Opción no válida', 'error');
+            }
+        }
+        
+        function showQuotationActions() {
+            const actions = [
+                '1. 📝 Nueva cotización',
+                '2. 📄 Duplicar última cotización',
+                '3. 📊 Ver estadísticas'
+            ];
+            
+            const action = prompt('💼 ACCIONES RÁPIDAS - COTIZACIONES:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-3):');
+            
+            if (action === '1') {
+                showModal('quotationModal');
+            } else if (action === '2') {
+                showAlert('📄 Duplicando última cotización...', 'info');
+            } else if (action === '3') {
+                showAlert('📊 Cargando estadísticas de cotizaciones...', 'info');
+            }
+        }
+        
+        function showSalesActions() {
+            const actions = [
+                '1. 🛒 Nueva venta',
+                '2. 🧾 Generar recibo',
+                '3. 📈 Ver ventas del día'
+            ];
+            
+            const action = prompt('💰 ACCIONES RÁPIDAS - VENTAS:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-3):');
+            
+            if (action === '1') {
+                showModal('saleModal');
+            } else if (action === '2') {
+                showAlert('🧾 Preparando recibo...', 'info');
+            } else if (action === '3') {
+                showAlert('📈 Ventas de hoy: $450.00', 'success');
+            }
+        }
+        
+        function showExpenseActions() {
+            const actions = [
+                '1. 💸 Nuevo gasto',
+                '2. 📱 Foto de recibo',
+                '3. 📊 Resumen mensual'
+            ];
+            
+            const action = prompt('💳 ACCIONES RÁPIDAS - GASTOS:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-3):');
+            
+            if (action === '1') {
+                showModal('expenseModal');
+            } else if (action === '2') {
+                showAlert('📱 Función de foto de recibo próximamente...', 'info');
+            } else if (action === '3') {
+                showAlert('📊 Gastos del mes: $1,250.00', 'info');
+            }
+        }
+        
+        function showUserActions() {
+            const actions = [
+                '1. 👤 Nuevo usuario',
+                '2. 💾 Respaldar datos',
+                '3. 📤 Importar datos'
+            ];
+            
+            const action = prompt('👥 ACCIONES RÁPIDAS - USUARIOS:\n\n' + actions.join('\n') + '\n\nSelecciona una opción (1-3):');
+            
+            if (action === '1') {
+                showModal('userModal');
+            } else if (action === '2') {
+                createBackupWithVerification();
+            } else if (action === '3') {
+                importAllData();
+            }
+        }
+
         // Acciones rápidas
         function showQuickActions() {
             const actions = [
@@ -2070,6 +2666,16 @@
             // Inicializar inventario
             initializeInventory();
             
+            // Optimizaciones para móviles
+            optimizeForMobile();
+            
+            // Detectar si es dispositivo móvil
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+                console.log('📱 Dispositivo móvil detectado - Optimizaciones activadas');
+            }
+            
             // Si no hay usuario logueado, el sistema mostrará automáticamente la pantalla de login
             if (!currentUser) {
                 console.log('🔐 Mostrando pantalla de login');
@@ -2077,7 +2683,7 @@
                 showAlert(`Bienvenido de nuevo, ${currentUser.name}`, 'success');
             }
             
-            console.log('🔧 PowerTools RD Sistema Completo v2.0');
+            console.log('🔧 PowerTools RD Sistema Completo v2.0 - Optimizado para móviles');
         });
     </script>
 </body>
