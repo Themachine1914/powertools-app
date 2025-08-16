@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTools RD - Sistema de Gestión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #FF6B35;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            color: #FF6B35;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #FF6B35;
+            padding-bottom: 0.5rem;
+        }
+
+        .btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+
+        .btn:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #bd2130;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+        }
+
+        .btn-info:hover {
+            background: #117a8b;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #FF6B35;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-pending { background: #ffc107; color: #856404; }
+        .badge-approved { background: #28a745; color: white; }
+        .badge-rejected { background: #dc3545; color: white; }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🔧 PowerTools RD</div>
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('dashboard')">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="nav-btn" onclick="showSection('quotations')">
+                <i class="fas fa-file-invoice"></i> Cotizaciones
+            </button>
+            <button class="nav-btn" onclick="showSection('inventory')">
+                <i class="fas fa-boxes"></i> Inventario
+            </button>
+            <button class="nav-btn" onclick="showSection('clients')">
+                <i class="fas fa-users"></i> Clientes
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard -->
+        <section id="dashboard" class="section active">
+            <h1 class="section-title">Dashboard</h1>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-title">Total Cotizaciones</div>
+                    <div class="card-text" id="totalQuotations">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Cotizaciones Pendientes</div>
+                    <div class="card-text" id="pendingQuotations">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Productos</div>
+                    <div class="card-text" id="totalProducts">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Clientes</div>
+                    <div class="card-text" id="totalClients">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cotizaciones -->
+        <section id="quotations" class="section">
+            <h1 class="section-title">Gestión de Cotizaciones</h1>
+            <button class="btn" onclick="openQuotationModal()">
+                <i class="fas fa-plus"></i> Nueva Cotización
+            </button>
+            
+            <div id="quotationsContainer">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotationsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Inventario -->
+        <section id="inventory" class="section">
+            <h1 class="section-title">Inventario de Productos</h1>
+            <button class="btn" onclick="openProductModal()">
+                <i class="fas fa-plus"></i> Nuevo Producto
+            </button>
+            
+            <div id="inventoryContainer">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Clientes -->
+        <section id="clients" class="section">
+            <h1 class="section-title">Gestión de Clientes</h1>
+            <button class="btn" onclick="openClientModal()">
+                <i class="fas fa-plus"></i> Nuevo Cliente
+            </button>
+            
+            <div id="clientsContainer">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Empresa</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal para Cotizaciones -->
+    <div id="quotationModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('quotationModal')">&times;</button>
+            <h2>Nueva Cotización</h2>
+            <form onsubmit="saveQuotation(event)">
+                <div class="form-group">
+                    <label>Cliente:</label>
+                    <select id="quotationClient" required>
+                        <option value="">Seleccionar cliente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <input type="date" id="quotationDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Productos:</label>
+                    <div id="quotationProducts">
+                        <button type="button" class="btn btn-info" onclick="addProductToQuotation()">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Total: $<span id="quotationTotal">0.00</span></label>
+                </div>
+                <button type="submit" class="btn btn-success">Guardar Cotización</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Productos -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            <h2>Nuevo Producto</h2>
+            <form onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label>Código:</label>
+                    <input type="text" id="productCode" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio:</label>
+                    <input type="number" id="productPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock:</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <button type="submit" class="btn btn-success">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Clientes -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('clientModal')">&times;</button>
+            <h2>Nuevo Cliente</h2>
+            <form onsubmit="saveClient(event)">
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="clientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono:</label>
+                    <input type="tel" id="clientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Empresa:</label>
+                    <input type="text" id="clientCompany">
+                </div>
+                <button type="submit" class="btn btn-success">Guardar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Compartir -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('shareModal')">&times;</button>
+            <h2>Compartir Cotización</h2>
+            <div id="shareContent">
+                <button class="btn btn-success" onclick="shareViaWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn btn-info" onclick="shareViaEmail()">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+                <button class="btn btn-danger" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let quotations = [];
+        let products = [];
+        let clients = [];
+        let currentQuotation = null;
+        let quotationCounter = 1;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 PowerTools RD iniciado');
+            loadData();
+            updateDashboard();
+            setTodayDate();
+        });
+
+        // Datos de ejemplo
+        function initializeData() {
+            // Productos de ejemplo
+            products = [
+                { id: 1, code: 'DRILL001', name: 'Taladro Eléctrico 600W', price: 2500, stock: 15 },
+                { id: 2, code: 'HAMMER001', name: 'Martillo de Carpintero 16oz', price: 850, stock: 25 },
+                { id: 3, code: 'SAW001', name: 'Sierra Circular 7.25"', price: 4200, stock: 8 },
+                { id: 4, code: 'WRENCH001', name: 'Juego de Llaves Inglesas', price: 1200, stock: 12 }
+            ];
+
+            // Clientes de ejemplo
+            clients = [
+                { id: 1, name: 'Juan Pérez', email: 'juan@example.com', phone: '809-555-0101', company: 'Construcciones JP' },
+                { id: 2, name: 'María González', email: 'maria@example.com', phone: '809-555-0102', company: 'Reformas MG' },
+                { id: 3, name: 'Carlos Martínez', email: 'carlos@example.com', phone: '809-555-0103', company: 'Electricidad CM' }
+            ];
+
+            // Cotizaciones de ejemplo
+            quotations = [
+                {
+                    id: 1,
+                    number: 'COT-001',
+                    clientId: 1,
+                    clientName: 'Juan Pérez',
+                    clientEmail: 'juan@example.com',
+                    clientPhone: '809-555-0101',
+                    date: new Date().toISOString().split('T')[0],
+                    products: [
+                        { id: 1, name: 'Taladro Eléctrico 600W', price: 2500, quantity: 2, total: 5000 }
+                    ],
+                    total: 5000,
+                    status: 'pending'
+                }
+            ];
+
+            saveData();
+            console.log('✅ Datos de ejemplo inicializados');
+        }
+
+        // Funciones de navegación
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName).classList.add('active');
+
+            // Actualizar botones de navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Actualizar contenido según la sección
+            switch(sectionName) {
+                case 'quotations':
+                    displayQuotations();
+                    break;
+                case 'inventory':
+                    displayProducts();
+                    break;
+                case 'clients':
+                    displayClients();
+                    break;
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+            }
+        }
+
+        // Funciones de modal
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Funciones de cotizaciones
+        function openQuotationModal() {
+            loadClientsSelect();
+            openModal('quotationModal');
+        }
+
+        function loadClientsSelect() {
+            const select = document.getElementById('quotationClient');
+            select.innerHTML = '<option value="">Seleccionar cliente</option>';
+            
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = `${client.name} - ${client.company}`;
+                select.appendChild(option);
+            });
+        }
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('quotationDate').value = today;
+        }
+
+        function addProductToQuotation() {
+            const container = document.getElementById('quotationProducts');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'form-group';
+            productDiv.innerHTML = `
+                <select onchange="updateProductPrice(this)" required>
+                    <option value="">Seleccionar producto</option>
+                    ${products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} - $${p.price}</option>`).join('')}
+                </select>
+                <input type="number" placeholder="Cantidad" min="1" onchange="calculateTotal()" required>
+                <button type="button" class="btn btn-danger" onclick="removeProduct(this)">Eliminar</button>
+            `;
+            container.appendChild(productDiv);
+        }
+
+        function removeProduct(button) {
+            button.parentElement.remove();
+            calculateTotal();
+        }
+
+        function updateProductPrice(select) {
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const productDivs = document.querySelectorAll('#quotationProducts .form-group');
+            
+            productDivs.forEach(div => {
+                const select = div.querySelector('select');
+                const quantityInput = div.querySelector('input[type="number"]');
+                
+                if (select.value && quantityInput.value) {
+                    const price = parseFloat(select.selectedOptions[0].dataset.price || 0);
+                    const quantity = parseInt(quantityInput.value || 0);
+                    total += price * quantity;
+                }
+            });
+
+            document.getElementById('quotationTotal').textContent = total.toFixed(2);
+        }
+
+        function saveQuotation(event) {
+            event.preventDefault();
+            
+            const clientId = document.getElementById('quotationClient').value;
+            const date = document.getElementById('quotationDate').value;
+            
+            if (!clientId || !date) {
+                alert('Por favor complete todos los campos requeridos');
+                return;
+            }
+
+            const client = clients.find(c => c.id == clientId);
+            const productDivs = document.querySelectorAll('#quotationProducts .form-group');
+            const quotationProducts = [];
+
+            productDivs.forEach(div => {
+                const select = div.querySelector('select');
+                const quantityInput = div.querySelector('input[type="number"]');
+                
+                if (select.value && quantityInput.value) {
+                    const product = products.find(p => p.id == select.value);
+                    const quantity = parseInt(quantityInput.value);
+                    quotationProducts.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity,
+                        total: product.price * quantity
+                    });
+                }
+            });
+
+            if (quotationProducts.length === 0) {
+                alert('Debe agregar al menos un producto');
+                return;
+            }
+
+            const total = quotationProducts.reduce((sum, p) => sum + p.total, 0);
+
+            const newQuotation = {
+                id: Date.now(),
+                number: `COT-${String(quotationCounter).padStart(3, '0')}`,
+                clientId: client.id,
+                clientName: client.name,
+                clientEmail: client.email,
+                clientPhone: client.phone,
+                date: date,
+                products: quotationProducts,
+                total: total,
+                status: 'pending'
+            };
+
+            quotations.push(newQuotation);
+            quotationCounter++;
+            saveData();
+            displayQuotations();
+            updateDashboard();
+            closeModal('quotationModal');
+            
+            // Limpiar formulario
+            document.getElementById('quotationProducts').innerHTML = `
+                <button type="button" class="btn btn-info" onclick="addProductToQuotation()">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+            `;
+            document.getElementById('quotationTotal').textContent = '0.00';
+            
+            alert('✅ Cotización creada exitosamente');
+        }
+
+        function displayQuotations() {
+            const tbody = document.getElementById('quotationsTableBody');
+            tbody.innerHTML = '';
+
+            quotations.forEach(quotation => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${quotation.number}</td>
+                    <td>${quotation.clientName}</td>
+                    <td>${new Date(quotation.date).toLocaleDateString()}</td>
+                    <td>$${quotation.total.toFixed(2)}</td>
+                    <td><span class="badge badge-${quotation.status}">${getStatusText(quotation.status)}</span></td>
+                    <td>
+                        <button class="btn btn-info" onclick="shareQuotation(${quotation.id})" title="Compartir">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteQuotation(${quotation.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pendiente',
+                'approved': 'Aprobada',
+                'rejected': 'Rechazada'
+            };
+            return statusMap[status] || status;
+        }
+
+        function shareQuotation(quotationId) {
+            console.log('🔗 Compartir cotización:', quotationId);
+            
+            // Buscar cotización con búsqueda robusta
+            let quotation = quotations.find(q => q.id === quotationId);
+            if (!quotation) {
+                quotation = quotations.find(q => q.id == quotationId);
+            }
+            
+            if (!quotation) {
+                console.error('❌ Cotización no encontrada:', quotationId);
+                alert('❌ Cotización no encontrada');
+                return;
+            }
+
+            console.log('✅ Cotización encontrada:', quotation);
+            currentQuotation = quotation;
+            openModal('shareModal');
+        }
+
+        function shareViaWhatsApp() {
+            if (!currentQuotation) {
+                alert('❌ No hay cotización seleccionada');
+                return;
+            }
+
+            console.log('📱 Compartiendo por WhatsApp:', currentQuotation);
+
+            // Limpiar número de teléfono
+            let phone = currentQuotation.clientPhone.replace(/\D/g, '');
+            
+            // Agregar código de país si es necesario
+            if (phone.length === 10 && !phone.startsWith('1')) {
+                phone = '1' + phone;
+            }
+
+            const message = `🔧 *PowerTools RD - Cotización ${currentQuotation.number}*
+
+👤 Cliente: ${currentQuotation.clientName}
+📅 Fecha: ${new Date(currentQuotation.date).toLocaleDateString()}
+💰 Total: $${currentQuotation.total.toFixed(2)}
+
+📦 *Productos:*
+${currentQuotation.products.map(p => `• ${p.name} (${p.quantity}x) - $${p.total.toFixed(2)}`).join('\n')}
+
+¡Gracias por su confianza!`;
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            
+            console.log('🔗 URL WhatsApp:', url);
+            
+            window.open(url, '_blank');
+            closeModal('shareModal');
+            
+            setTimeout(() => {
+                alert('✅ WhatsApp abierto. Si no se abrió automáticamente, verifica el número.');
+            }, 500);
+        }
+
+        function shareViaEmail() {
+            if (!currentQuotation) {
+                alert('❌ No hay cotización seleccionada');
+                return;
+            }
+
+            console.log('📧 Compartiendo por Email:', currentQuotation);
+
+            const subject = `Cotización ${currentQuotation.number} - PowerTools RD`;
+            const body = `Estimado/a ${currentQuotation.clientName},
+
+Esperamos que se encuentre bien.
+
+Adjunto los detalles de la cotización ${currentQuotation.number}:
+
+📋 Cliente: ${currentQuotation.clientName}
+📅 Fecha: ${new Date(currentQuotation.date).toLocaleDateString()}
+💰 Total: $${currentQuotation.total.toFixed(2)}
+
+PRODUCTOS:
+${currentQuotation.products.map(p => `• ${p.name} (${p.quantity}x) - $${p.total.toFixed(2)}`).join('\n')}
+
+Quedamos atentos a sus comentarios.
+
+Saludos cordiales,
+PowerTools RD`;
+
+            const mailtoUrl = `mailto:${currentQuotation.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            console.log('📧 URL Email:', mailtoUrl);
+            
+            window.open(mailtoUrl);
+            closeModal('shareModal');
+            
+            alert('✅ Cliente de email abierto');
+        }
+
+        function downloadPDF() {
+            if (!currentQuotation) {
+                alert('❌ No hay cotización seleccionada');
+                return;
+            }
+
+            console.log('📄 Generando PDF:', currentQuotation);
+
+            // Verificar jsPDF
+            if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+                alert('❌ Error: No se pudo cargar la librería de PDF. Recarga la página.');
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf || { jsPDF: jsPDF };
+                const doc = new jsPDF();
+
+                // Encabezado
+                doc.setFontSize(20);
+                doc.setTextColor(255, 107, 53);
+                doc.text('PowerTools RD', 20, 30);
+                
+                doc.setFontSize(16);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Cotización ${currentQuotation.number}`, 20, 45);
+
+                // Información del cliente
+                doc.setFontSize(12);
+                doc.text('INFORMACIÓN DEL CLIENTE:', 20, 65);
+                doc.text(`Nombre: ${currentQuotation.clientName}`, 20, 75);
+                doc.text(`Email: ${currentQuotation.clientEmail}`, 20, 85);
+                doc.text(`Teléfono: ${currentQuotation.clientPhone}`, 20, 95);
+                doc.text(`Fecha: ${new Date(currentQuotation.date).toLocaleDateString()}`, 20, 105);
+
+                // Productos
+                doc.text('PRODUCTOS:', 20, 125);
+                
+                let yPos = 140;
+                currentQuotation.products.forEach(product => {
+                    doc.text(`• ${product.name}`, 25, yPos);
+                    doc.text(`Cantidad: ${product.quantity}`, 30, yPos + 10);
+                    doc.text(`Precio unitario: $${product.price.toFixed(2)}`, 30, yPos + 20);
+                    doc.text(`Subtotal: $${product.total.toFixed(2)}`, 30, yPos + 30);
+                    yPos += 45;
+                });
+
+                // Total
+                doc.setFontSize(14);
+                doc.text(`TOTAL: $${currentQuotation.total.toFixed(2)}`, 20, yPos + 10);
+
+                // Guardar
+                doc.save(`Cotizacion_${currentQuotation.number}.pdf`);
+                closeModal('shareModal');
+                
+                alert('✅ PDF generado exitosamente');
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                alert('❌ Error al generar PDF: ' + error.message);
+            }
+        }
+
+        function deleteQuotation(quotationId) {
+            if (confirm('¿Está seguro de eliminar esta cotización?')) {
+                quotations = quotations.filter(q => q.id !== quotationId);
+                saveData();
+                displayQuotations();
+                updateDashboard();
+                alert('✅ Cotización eliminada');
+            }
+        }
+
+        // Funciones de productos
+        function openProductModal() {
+            openModal('productModal');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById('productCode').value;
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const stock = parseInt(document.getElementById('productStock').value);
+
+            const newProduct = {
+                id: Date.now(),
+                code: code,
+                name: name,
+                price: price,
+                stock: stock
+            };
+
+            products.push(newProduct);
+            saveData();
+            displayProducts();
+            updateDashboard();
+            closeModal('productModal');
+            
+            // Limpiar formulario
+            document.getElementById('productCode').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productStock').value = '';
+            
+            alert('✅ Producto creado exitosamente');
+        }
+
+        function displayProducts() {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product.code}</td>
+                    <td>${product.name}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>${product.stock}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('¿Está seguro de eliminar este producto?')) {
+                products = products.filter(p => p.id !== productId);
+                saveData();
+                displayProducts();
+                updateDashboard();
+                alert('✅ Producto eliminado');
+            }
+        }
+
+        // Funciones de clientes
+        function openClientModal() {
+            openModal('clientModal');
+        }
+
+        function saveClient(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('clientName').value;
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+            const company = document.getElementById('clientCompany').value;
+
+            const newClient = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                phone: phone,
+                company: company
+            };
+
+            clients.push(newClient);
+            saveData();
+            displayClients();
+            updateDashboard();
+            closeModal('clientModal');
+            
+            // Limpiar formulario
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientEmail').value = '';
+            document.getElementById('clientPhone').value = '';
+            document.getElementById('clientCompany').value = '';
+            
+            alert('✅ Cliente creado exitosamente');
+        }
+
+        function displayClients() {
+            const tbody = document.getElementById('clientsTableBody');
+            tbody.innerHTML = '';
+
+            clients.forEach(client => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${client.name}</td>
+                    <td>${client.email}</td>
+                    <td>${client.phone}</td>
+                    <td>${client.company || '-'}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteClient(${client.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteClient(clientId) {
+            if (confirm('¿Está seguro de eliminar este cliente?')) {
+                clients = clients.filter(c => c.id !== clientId);
+                saveData();
+                displayClients();
+                updateDashboard();
+                alert('✅ Cliente eliminado');
+            }
+        }
+
+        // Funciones de dashboard
+        function updateDashboard() {
+            document.getElementById('totalQuotations').textContent = quotations.length;
+            document.getElementById('pendingQuotations').textContent = quotations.filter(q => q.status === 'pending').length;
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('totalClients').textContent = clients.length;
+        }
+
+        // Funciones de almacenamiento
+        function saveData() {
+            localStorage.setItem('powertools_quotations', JSON.stringify(quotations));
+            localStorage.setItem('powertools_products', JSON.stringify(products));
+            localStorage.setItem('powertools_clients', JSON.stringify(clients));
+            localStorage.setItem('powertools_counter', quotationCounter.toString());
+            console.log('💾 Datos guardados');
+        }
+
+        function loadData() {
+            try {
+                const savedQuotations = localStorage.getItem('powertools_quotations');
+                const savedProducts = localStorage.getItem('powertools_products');
+                const savedClients = localStorage.getItem('powertools_clients');
+                const savedCounter = localStorage.getItem('powertools_counter');
+
+                if (savedQuotations) quotations = JSON.parse(savedQuotations);
+                if (savedProducts) products = JSON.parse(savedProducts);
+                if (savedClients) clients = JSON.parse(savedClients);
+                if (savedCounter) quotationCounter = parseInt(savedCounter);
+
+                // Si no hay datos, inicializar con ejemplos
+                if (quotations.length === 0 && products.length === 0 && clients.length === 0) {
+                    initializeData();
+                }
+
+                console.log('📁 Datos cargados:', {
+                    cotizaciones: quotations.length,
+                    productos: products.length,
+                    clientes: clients.length
+                });
+
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                initializeData();
+            }
+        }
+    </script>
+</body>
+</html>
