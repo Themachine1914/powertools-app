@@ -367,6 +367,7 @@
         }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <!-- Login Screen -->
@@ -3110,135 +3111,169 @@ ${categoryReport}
                 return;
             }
             
-            showAlert('📄 Preparando PDF...', 'info');
+            showAlert('📄 Generando PDF...', 'info');
             
-            // Crear contenido HTML para el PDF
-            const pdfContent = generateQuotationPDFContent(quotation);
-            
-            // Crear ventana para imprimir
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(pdfContent);
-            printWindow.document.close();
-            
-            printWindow.onload = function() {
-                printWindow.print();
-                setTimeout(() => {
-                    printWindow.close();
-                }, 1000);
-            };
-        }
-
-        // Generar contenido HTML para PDF
-        function generateQuotationPDFContent(quotation) {
-            const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
-            const validUntil = new Date(quotation.validUntil).toLocaleDateString('es-DO');
-            
-            const productsHtml = quotation.products.map(product => `
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${product.name}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${product.quantity}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${product.price.toFixed(2)}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${product.subtotal.toFixed(2)}</td>
-                </tr>
-            `).join('');
-            
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Cotización ${quotation.number} - PowerTools RD</title>
-                    <style>
-                        @media print {
-                            body { margin: 0; }
-                            .no-print { display: none; }
-                        }
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .header { text-align: center; border-bottom: 3px solid #FF6B35; padding-bottom: 20px; margin-bottom: 30px; }
-                        .company-name { color: #FF6B35; font-size: 28px; margin: 0; }
-                        .quotation-title { color: #2E4057; font-size: 20px; margin: 10px 0; }
-                        .info-section { display: table; width: 100%; margin-bottom: 30px; }
-                        .info-left, .info-right { display: table-cell; width: 50%; vertical-align: top; }
-                        .info-left { padding-right: 20px; }
-                        .info-title { color: #2E4057; font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-                        .products-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                        .products-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; }
-                        .products-table td { border: 1px solid #ddd; padding: 8px; }
-                        .totals { text-align: right; margin-bottom: 30px; }
-                        .total-line { margin: 5px 0; }
-                        .grand-total { font-size: 18px; font-weight: bold; color: #FF6B35; border-top: 2px solid #ddd; padding-top: 10px; }
-                        .notes { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #FF6B35; margin-bottom: 30px; }
-                        .footer { text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1 class="company-name">PowerTools RD</h1>
-                        <h2 class="quotation-title">COTIZACIÓN ${quotation.number}</h2>
-                        <p>Sistema de Gestión Empresarial</p>
-                    </div>
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Configuración de colores
+                const primaryColor = [255, 107, 53]; // #FF6B35
+                const secondaryColor = [46, 64, 87]; // #2E4057
+                const grayColor = [102, 102, 102];
+                
+                // Header con logo y título
+                doc.setFillColor(...primaryColor);
+                doc.rect(0, 0, 210, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('PowerTools RD', 20, 20);
+                
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`COTIZACIÓN ${quotation.number}`, 120, 20);
+                
+                // Reset color
+                doc.setTextColor(0, 0, 0);
+                
+                let yPos = 45;
+                
+                // Información del cliente y cotización
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...secondaryColor);
+                doc.text('INFORMACIÓN DEL CLIENTE', 20, yPos);
+                doc.text('INFORMACIÓN DE LA COTIZACIÓN', 120, yPos);
+                
+                yPos += 8;
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                
+                // Cliente
+                doc.text(`Nombre: ${quotation.clientName}`, 20, yPos);
+                doc.text(`Fecha: ${new Date(quotation.date).toLocaleDateString('es-DO')}`, 120, yPos);
+                yPos += 6;
+                
+                if (quotation.clientCompany) {
+                    doc.text(`Empresa: ${quotation.clientCompany}`, 20, yPos);
+                    yPos += 6;
+                }
+                
+                doc.text(`Email: ${quotation.clientEmail}`, 20, yPos);
+                doc.text(`Válida hasta: ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}`, 120, yPos);
+                yPos += 6;
+                
+                doc.text(`Teléfono: ${quotation.clientPhone}`, 20, yPos);
+                doc.text(`Estado: ${getQuotationStatusInfo(quotation.status).text}`, 120, yPos);
+                yPos += 6;
+                
+                doc.text(`Condiciones: ${quotation.paymentTerms}`, 120, yPos);
+                yPos += 15;
+                
+                // Tabla de productos
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...secondaryColor);
+                doc.text('PRODUCTOS/SERVICIOS', 20, yPos);
+                yPos += 10;
+                
+                // Headers de la tabla
+                const tableStartY = yPos;
+                doc.setFillColor(248, 249, 250);
+                doc.rect(20, yPos - 5, 170, 8, 'F');
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text('Producto/Servicio', 22, yPos);
+                doc.text('Cant.', 120, yPos);
+                doc.text('Precio Unit.', 140, yPos);
+                doc.text('Subtotal', 170, yPos);
+                yPos += 8;
+                
+                // Productos
+                doc.setFont('helvetica', 'normal');
+                quotation.products.forEach((product, index) => {
+                    if (yPos > 250) { // Nueva página si es necesario
+                        doc.addPage();
+                        yPos = 20;
+                    }
                     
-                    <div class="info-section">
-                        <div class="info-left">
-                            <h3 class="info-title">Información del Cliente</h3>
-                            <p><strong>Nombre:</strong> ${quotation.clientName}</p>
-                            ${quotation.clientCompany ? `<p><strong>Empresa:</strong> ${quotation.clientCompany}</p>` : ''}
-                            <p><strong>Email:</strong> ${quotation.clientEmail}</p>
-                            <p><strong>Teléfono:</strong> ${quotation.clientPhone}</p>
-                        </div>
-                        <div class="info-right">
-                            <h3 class="info-title">Información de la Cotización</h3>
-                            <p><strong>Fecha:</strong> ${formattedDate}</p>
-                            <p><strong>Válida hasta:</strong> ${validUntil}</p>
-                            <p><strong>Estado:</strong> ${getQuotationStatusInfo(quotation.status).text}</p>
-                            <p><strong>Condiciones de pago:</strong> ${quotation.paymentTerms}</p>
-                        </div>
-                    </div>
+                    // Alternar color de fondo
+                    if (index % 2 === 1) {
+                        doc.setFillColor(248, 249, 250);
+                        doc.rect(20, yPos - 3, 170, 6, 'F');
+                    }
                     
-                    <h3 class="info-title">Productos/Servicios</h3>
-                    <table class="products-table">
-                        <thead>
-                            <tr>
-                                <th>Producto/Servicio</th>
-                                <th style="text-align: center;">Cantidad</th>
-                                <th style="text-align: right;">Precio Unitario</th>
-                                <th style="text-align: right;">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${productsHtml}
-                        </tbody>
-                    </table>
+                    doc.text(product.name.substring(0, 40), 22, yPos);
+                    doc.text(product.quantity.toString(), 125, yPos);
+                    doc.text(`$${product.price.toFixed(2)}`, 145, yPos);
+                    doc.text(`$${product.subtotal.toFixed(2)}`, 175, yPos);
+                    yPos += 6;
+                });
+                
+                yPos += 10;
+                
+                // Totales
+                doc.setDrawColor(...grayColor);
+                doc.line(140, yPos, 190, yPos);
+                yPos += 5;
+                
+                doc.setFont('helvetica', 'normal');
+                doc.text('Subtotal:', 140, yPos);
+                doc.text(`$${quotation.subtotal.toFixed(2)}`, 175, yPos);
+                yPos += 5;
+                
+                doc.text('ITBIS (18%):', 140, yPos);
+                doc.text(`$${quotation.tax.toFixed(2)}`, 175, yPos);
+                yPos += 8;
+                
+                // Total final
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(...primaryColor);
+                doc.text('TOTAL:', 140, yPos);
+                doc.text(`$${quotation.total.toFixed(2)}`, 175, yPos);
+                
+                // Notas si existen
+                if (quotation.notes) {
+                    yPos += 15;
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...secondaryColor);
+                    doc.text('NOTAS ADICIONALES:', 20, yPos);
+                    yPos += 5;
                     
-                    <div class="totals">
-                        <div class="total-line">Subtotal: $${quotation.subtotal.toFixed(2)}</div>
-                        <div class="total-line">ITBIS (18%): $${quotation.tax.toFixed(2)}</div>
-                        <div class="grand-total">Total: $${quotation.total.toFixed(2)}</div>
-                    </div>
-                    
-                    ${quotation.notes ? `
-                        <div class="notes">
-                            <h3 class="info-title">Notas adicionales</h3>
-                            <p>${quotation.notes}</p>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="footer">
-                        <p>PowerTools RD - Sistema de Gestión Empresarial</p>
-                        <p>Esta cotización es válida hasta ${validUntil}</p>
-                        <p>¡Gracias por confiar en nosotros!</p>
-                    </div>
-                    
-                    <script>
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 500);
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(0, 0, 0);
+                    const noteLines = doc.splitTextToSize(quotation.notes, 170);
+                    doc.text(noteLines, 20, yPos);
+                }
+                
+                // Footer
+                yPos = 280;
+                doc.setFillColor(...grayColor);
+                doc.rect(0, yPos, 210, 17, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.text('PowerTools RD - Sistema de Gestión Empresarial', 20, yPos + 6);
+                doc.text(`Esta cotización es válida hasta ${new Date(quotation.validUntil).toLocaleDateString('es-DO')}`, 20, yPos + 11);
+                doc.text('¡Gracias por confiar en nosotros!', 140, yPos + 8);
+                
+                // Guardar el PDF
+                const fileName = `Cotizacion_${quotation.number}_${quotation.clientName.replace(/\s+/g, '_')}.pdf`;
+                doc.save(fileName);
+                
+                showAlert('✅ PDF descargado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                showAlert('❌ Error al generar PDF. Intente nuevamente.', 'error');
+            }
         }
 
         // Exportar todas las cotizaciones a PDF
@@ -3248,126 +3283,148 @@ ${categoryReport}
                 return;
             }
             
-            showAlert('📄 Preparando reporte de cotizaciones...', 'info');
+            showAlert('📄 Generando reporte de cotizaciones...', 'info');
             
-            const reportContent = generateQuotationsReportContent();
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(reportContent);
-            printWindow.document.close();
-            
-            printWindow.onload = function() {
-                printWindow.print();
-                setTimeout(() => {
-                    printWindow.close();
-                }, 1000);
-            };
-        }
-
-        // Generar reporte de todas las cotizaciones
-        function generateQuotationsReportContent() {
-            const currentDate = new Date().toLocaleDateString('es-DO');
-            const totalQuotations = quotations.length;
-            const totalValue = quotations.reduce((sum, q) => sum + q.total, 0);
-            
-            const quotationsHtml = quotations.map(quotation => {
-                const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
-                const statusInfo = getQuotationStatusInfo(quotation.status);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
                 
-                return `
-                    <tr>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.number}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.clientName}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${quotation.clientCompany || '-'}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${formattedDate}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${quotation.total.toFixed(2)}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${statusInfo.text}</td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${quotation.products.length}</td>
-                    </tr>
-                `;
-            }).join('');
-            
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Reporte de Cotizaciones - PowerTools RD</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .header { text-align: center; border-bottom: 3px solid #FF6B35; padding-bottom: 20px; margin-bottom: 30px; }
-                        .company-name { color: #FF6B35; font-size: 28px; margin: 0; }
-                        .report-title { color: #2E4057; font-size: 20px; margin: 10px 0; }
-                        .summary { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-                        .summary-stats { display: table; width: 100%; }
-                        .summary-item { display: table-cell; text-align: center; padding: 10px; }
-                        .summary-value { font-size: 24px; font-weight: bold; color: #FF6B35; }
-                        .summary-label { font-size: 14px; color: #666; }
-                        .quotations-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                        .quotations-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
-                        .quotations-table td { border: 1px solid #ddd; padding: 8px; font-size: 12px; }
-                        .footer { text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
-                        @media print { body { margin: 0; } }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1 class="company-name">PowerTools RD</h1>
-                        <h2 class="report-title">REPORTE DE COTIZACIONES</h2>
-                        <p>Generado el ${currentDate}</p>
-                    </div>
+                // Configuración de colores
+                const primaryColor = [255, 107, 53]; // #FF6B35
+                const secondaryColor = [46, 64, 87]; // #2E4057
+                const grayColor = [102, 102, 102];
+                
+                // Header con logo y título
+                doc.setFillColor(...primaryColor);
+                doc.rect(0, 0, 210, 30, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.text('PowerTools RD', 20, 20);
+                
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'normal');
+                doc.text('REPORTE DE COTIZACIONES', 120, 20);
+                
+                // Reset color y estadísticas
+                doc.setTextColor(0, 0, 0);
+                const currentDate = new Date().toLocaleDateString('es-DO');
+                const totalQuotations = quotations.length;
+                const totalValue = quotations.reduce((sum, q) => sum + q.total, 0);
+                const avgValue = totalValue / totalQuotations;
+                
+                let yPos = 45;
+                
+                // Información del reporte
+                doc.setFontSize(10);
+                doc.setTextColor(...grayColor);
+                doc.text(`Generado el: ${currentDate}`, 20, yPos);
+                yPos += 15;
+                
+                // Resumen ejecutivo
+                doc.setFillColor(248, 249, 250);
+                doc.rect(20, yPos - 5, 170, 25, 'F');
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...secondaryColor);
+                doc.text('RESUMEN EJECUTIVO', 25, yPos + 3);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Total de cotizaciones: ${totalQuotations}`, 25, yPos + 10);
+                doc.text(`Valor total: $${totalValue.toFixed(2)}`, 100, yPos + 10);
+                doc.text(`Promedio por cotización: $${avgValue.toFixed(2)}`, 25, yPos + 16);
+                
+                yPos += 35;
+                
+                // Tabla de cotizaciones
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...secondaryColor);
+                doc.text('DETALLE DE COTIZACIONES', 20, yPos);
+                yPos += 10;
+                
+                // Headers de la tabla
+                doc.setFillColor(248, 249, 250);
+                doc.rect(20, yPos - 5, 170, 8, 'F');
+                
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text('Número', 22, yPos);
+                doc.text('Cliente', 45, yPos);
+                doc.text('Empresa', 85, yPos);
+                doc.text('Fecha', 115, yPos);
+                doc.text('Total', 140, yPos);
+                doc.text('Estado', 160, yPos);
+                doc.text('Items', 180, yPos);
+                yPos += 8;
+                
+                // Cotizaciones
+                doc.setFont('helvetica', 'normal');
+                quotations.forEach((quotation, index) => {
+                    if (yPos > 250) { // Nueva página si es necesario
+                        doc.addPage();
+                        yPos = 20;
+                        
+                        // Re-crear headers en nueva página
+                        doc.setFillColor(248, 249, 250);
+                        doc.rect(20, yPos - 5, 170, 8, 'F');
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Número', 22, yPos);
+                        doc.text('Cliente', 45, yPos);
+                        doc.text('Empresa', 85, yPos);
+                        doc.text('Fecha', 115, yPos);
+                        doc.text('Total', 140, yPos);
+                        doc.text('Estado', 160, yPos);
+                        doc.text('Items', 180, yPos);
+                        yPos += 8;
+                        doc.setFont('helvetica', 'normal');
+                    }
                     
-                    <div class="summary">
-                        <h3 style="margin-top: 0; color: #2E4057;">Resumen Ejecutivo</h3>
-                        <div class="summary-stats">
-                            <div class="summary-item">
-                                <div class="summary-value">${totalQuotations}</div>
-                                <div class="summary-label">Total Cotizaciones</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value">$${totalValue.toFixed(2)}</div>
-                                <div class="summary-label">Valor Total</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value">$${(totalValue / totalQuotations || 0).toFixed(2)}</div>
-                                <div class="summary-label">Promedio por Cotización</div>
-                            </div>
-                        </div>
-                    </div>
+                    // Alternar color de fondo
+                    if (index % 2 === 1) {
+                        doc.setFillColor(248, 249, 250);
+                        doc.rect(20, yPos - 3, 170, 6, 'F');
+                    }
                     
-                    <h3 style="color: #2E4057; margin-bottom: 15px;">Detalle de Cotizaciones</h3>
-                    <table class="quotations-table">
-                        <thead>
-                            <tr>
-                                <th>Número</th>
-                                <th>Cliente</th>
-                                <th>Empresa</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Items</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${quotationsHtml}
-                        </tbody>
-                    </table>
+                    const formattedDate = new Date(quotation.date).toLocaleDateString('es-DO');
+                    const statusInfo = getQuotationStatusInfo(quotation.status);
                     
-                    <div class="footer">
-                        <p>PowerTools RD - Sistema de Gestión Empresarial</p>
-                        <p>Reporte generado automáticamente el ${currentDate}</p>
-                    </div>
-                    
-                    <script>
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 500);
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
+                    doc.text(quotation.number, 22, yPos);
+                    doc.text(quotation.clientName.substring(0, 15), 45, yPos);
+                    doc.text((quotation.clientCompany || '-').substring(0, 12), 85, yPos);
+                    doc.text(formattedDate, 115, yPos);
+                    doc.text(`$${quotation.total.toFixed(2)}`, 140, yPos);
+                    doc.text(statusInfo.text, 160, yPos);
+                    doc.text(quotation.products.length.toString(), 185, yPos);
+                    yPos += 6;
+                });
+                
+                // Footer en la última página
+                yPos = 280;
+                doc.setFillColor(...grayColor);
+                doc.rect(0, yPos, 210, 17, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.text('PowerTools RD - Sistema de Gestión Empresarial', 20, yPos + 6);
+                doc.text(`Reporte generado automáticamente el ${currentDate}`, 20, yPos + 11);
+                
+                // Guardar el PDF
+                const fileName = `Reporte_Cotizaciones_${currentDate.replace(/\//g, '-')}.pdf`;
+                doc.save(fileName);
+                
+                showAlert('✅ Reporte descargado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error generando reporte:', error);
+                showAlert('❌ Error al generar reporte. Intente nuevamente.', 'error');
+            }
         }
 
         // Funciones adicionales
