@@ -2211,10 +2211,9 @@ ${categoryReport}
                 clearProductForm();
             }
             
-            // Abrir modal de nueva cotización
+            // Inicializar modal de nueva cotización
             if (modalId === 'quotationModal' && !editingQuotationId) {
-                openNewQuotation();
-                return;
+                initializeNewQuotationModal();
             }
             
             document.getElementById(modalId).classList.add('active');
@@ -2382,6 +2381,12 @@ ${categoryReport}
         function openNewQuotation() {
             editingQuotationId = null;
             selectedProducts = [];
+            initializeNewQuotationModal();
+            showModal('quotationModal');
+        }
+
+        // Inicializar modal de nueva cotización (sin llamar showModal)
+        function initializeNewQuotationModal() {
             document.getElementById('quotationModalTitle').textContent = 'Nueva Cotización';
             document.getElementById('saveQuotationButtonText').textContent = 'Guardar Cotización';
             
@@ -2401,8 +2406,6 @@ ${categoryReport}
             
             updateQuotationProductsDisplay();
             calculateQuotationTotals();
-            
-            showModal('quotationModal');
         }
 
         // Limpiar formulario de cotización
